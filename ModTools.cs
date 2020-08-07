@@ -73,7 +73,7 @@ namespace ModTools
                     EnableCursor();
                 }
             }
-            if ( !IsOptionInstantFinishConstructionsActive && !IsLocalOrHost && IsModToolsActive && Input.GetKeyDown(KeyCode.F8))
+            if (!IsOptionInstantFinishConstructionsActive && !IsLocalOrHost && IsModToolsActive && Input.GetKeyDown(KeyCode.F8))
             {
                 ShowHUDBigInfo("Feature disabled in multiplayer!", "Mod Tools Info", HUDInfoLogTextureType.Count.ToString());
             }
@@ -140,6 +140,7 @@ namespace ModTools
                 if (!itemsManager.m_UnlockedItemInfos.Contains(unlockedArmorItemInfo))
                 {
                     itemsManager.UnlockItemInfo(unlockedArmorItemInfo.ToString());
+                    ShowHUDInfoLog(unlockedArmorItemInfo.ToString(), "HUD_InfoLog_NewEntry");
                 }
             }
         }
@@ -162,6 +163,7 @@ namespace ModTools
                 if (!itemsManager.m_UnlockedItemInfos.Contains(unlockedWeaponsItemInfo))
                 {
                     itemsManager.UnlockItemInfo(unlockedWeaponsItemInfo.ToString());
+                    ShowHUDInfoLog(unlockedWeaponsItemInfo.ToString(), "HUD_InfoLog_NewEntry");
                 }
             }
         }
@@ -177,17 +179,6 @@ namespace ModTools
             }
         }
 
-        private static void UnlockAllToolsItemInfosInNotepad()
-        {
-            foreach (ItemID unlockedToolsItemInfo in m_UnlockedItemInfos)
-            {
-                if (!itemsManager.m_UnlockedItemInfos.Contains(unlockedToolsItemInfo))
-                {
-                    itemsManager.UnlockItemInfo(unlockedToolsItemInfo.ToString());
-                }
-            }
-        }
-
         private static void UnlockAllToolsInNotepad()
         {
             foreach (ItemID unlockedToolsItemInfo in m_UnlockedItemInfos)
@@ -195,6 +186,18 @@ namespace ModTools
                 if (!itemsManager.m_UnlockedInNotepadItems.Contains(unlockedToolsItemInfo))
                 {
                     itemsManager.UnlockItemInNotepad(unlockedToolsItemInfo);
+                    ShowHUDInfoLog(unlockedToolsItemInfo.ToString(), "HUD_InfoLog_NewEntry");
+                }
+            }
+        }
+
+        private static void UnlockAllToolsItemInfosInNotepad()
+        {
+            foreach (ItemID unlockedToolsItemInfo in m_UnlockedItemInfos)
+            {
+                if (!itemsManager.m_UnlockedItemInfos.Contains(unlockedToolsItemInfo))
+                {
+                    itemsManager.UnlockItemInfo(unlockedToolsItemInfo.ToString());
                 }
             }
         }
@@ -230,7 +233,7 @@ namespace ModTools
 
         private void InitModUI()
         {
-            GUI.Box(new Rect(10f, 10f, 500f, 150f), "Mod for tools", GUI.skin.window);
+            GUI.Box(new Rect(10f, 10f, 600f, 150f), "Mod for tools", GUI.skin.window);
 
             GUI.Label(new Rect(30f, 25f, 300f, 20f), "Click to unlock all crafting tools", GUI.skin.label);
             if (GUI.Button(new Rect(325f, 25f, 200f, 20f), "Unlock tools", GUI.skin.button))
@@ -267,7 +270,7 @@ namespace ModTools
                 m_UnlockedItemInfos = new List<ItemID>();
             }
 
-            foreach (ItemInfo weaponItemInfo in itemsManager.GetAllInfos().Values.Where (
+            foreach (ItemInfo weaponItemInfo in itemsManager.GetAllInfos().Values.Where(
                                                                                                             info =>
                                                                                                                 info.IsWeapon()
                                                                                                                 || info.IsKnife()
@@ -289,6 +292,15 @@ namespace ModTools
                 if (!m_UnlockedItemInfos.Contains(weaponItemID))
                 {
                     m_UnlockedItemInfos.Add(weaponItemID);
+                }
+            }
+
+            foreach (ItemInfo explosiveItemInfo in itemsManager.GetAllInfosOfType(ItemType.Dynamite))
+            {
+                ItemID explosiveItemID = explosiveItemInfo.m_ID;
+                if (!m_UnlockedItemInfos.Contains(explosiveItemID))
+                {
+                    m_UnlockedItemInfos.Add(explosiveItemID);
                 }
             }
         }
@@ -324,7 +336,10 @@ namespace ModTools
                                                                                                 info =>
                                                                                                     info.IsFishingRod()
                                                                                                     || info.IsTorch()
-                                                                                                    || info.m_ID == ItemID.Tobacco_Torch
+                                                                                                    || info.m_ID == ItemID.Hand_Drill_Board
+                                                                                                    || info.m_ID == ItemID.Fire_Bow
+                                                                                                    || info.m_ID == ItemID.Hand_Drill_Stick
+                                                                                                    || info.m_ID == ItemID.Fire_Board
                                                                                                     || info.m_ID == ItemID.Coconut_Bidon
                                                                                                     || info.m_ID == ItemID.Bamboo_Bowl
                                                                                                 ))
@@ -335,8 +350,6 @@ namespace ModTools
                     m_UnlockedItemInfos.Add(itemToolItemID);
                 }
             }
-
-
         }
 
         private static void InitSkinUI()
