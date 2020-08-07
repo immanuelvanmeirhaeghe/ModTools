@@ -19,7 +19,11 @@ namespace ModTools
 
         private static Player player;
 
-        public static List<ItemID> m_UnlockedItemInfos = new List<ItemID>();
+        public static List<ItemID> m_UnlockedToolsItemInfos = new List<ItemID>();
+
+        public static List<ItemID> m_UnlockedWeaponsTrapsItemInfos = new List<ItemID>();
+
+        public static List<ItemID> m_UnlockedArmorItemInfos = new List<ItemID>();
 
         public bool IsModToolsActive;
 
@@ -135,7 +139,7 @@ namespace ModTools
 
         private static void UnlockAllArmorInNotepad()
         {
-            foreach (ItemID unlockedArmorItemInfo in m_UnlockedItemInfos)
+            foreach (ItemID unlockedArmorItemInfo in m_UnlockedArmorItemInfos)
             {
                 if (!itemsManager.m_UnlockedItemInfos.Contains(unlockedArmorItemInfo))
                 {
@@ -147,7 +151,7 @@ namespace ModTools
 
         private static void UnlockAllArmorItemInfosInNotepad()
         {
-            foreach (ItemID unlockedArmorItemInfo in m_UnlockedItemInfos)
+            foreach (ItemID unlockedArmorItemInfo in m_UnlockedArmorItemInfos)
             {
                 if (!itemsManager.m_UnlockedInNotepadItems.Contains(unlockedArmorItemInfo))
                 {
@@ -158,7 +162,7 @@ namespace ModTools
 
         private static void UnlockAllWeaponsInNotepad()
         {
-            foreach (ItemID unlockedWeaponsItemInfo in m_UnlockedItemInfos)
+            foreach (ItemID unlockedWeaponsItemInfo in m_UnlockedWeaponsTrapsItemInfos)
             {
                 if (!itemsManager.m_UnlockedItemInfos.Contains(unlockedWeaponsItemInfo))
                 {
@@ -170,7 +174,7 @@ namespace ModTools
 
         private static void UnlockAllWeaponsItemInfosInNotepad()
         {
-            foreach (ItemID unlockedWeaponsItemInfo in m_UnlockedItemInfos)
+            foreach (ItemID unlockedWeaponsItemInfo in m_UnlockedWeaponsTrapsItemInfos)
             {
                 if (!itemsManager.m_UnlockedInNotepadItems.Contains(unlockedWeaponsItemInfo))
                 {
@@ -181,7 +185,7 @@ namespace ModTools
 
         private static void UnlockAllToolsInNotepad()
         {
-            foreach (ItemID unlockedToolsItemInfo in m_UnlockedItemInfos)
+            foreach (ItemID unlockedToolsItemInfo in m_UnlockedToolsItemInfos)
             {
                 if (!itemsManager.m_UnlockedInNotepadItems.Contains(unlockedToolsItemInfo))
                 {
@@ -193,7 +197,7 @@ namespace ModTools
 
         private static void UnlockAllToolsItemInfosInNotepad()
         {
-            foreach (ItemID unlockedToolsItemInfo in m_UnlockedItemInfos)
+            foreach (ItemID unlockedToolsItemInfo in m_UnlockedToolsItemInfos)
             {
                 if (!itemsManager.m_UnlockedItemInfos.Contains(unlockedToolsItemInfo))
                 {
@@ -265,9 +269,9 @@ namespace ModTools
 
         private static void InitWeaponsDataToUnlock()
         {
-            if (m_UnlockedItemInfos == null)
+            if (m_UnlockedWeaponsTrapsItemInfos == null)
             {
-                m_UnlockedItemInfos = new List<ItemID>();
+                m_UnlockedWeaponsTrapsItemInfos = new List<ItemID>();
             }
 
             foreach (ItemInfo weaponItemInfo in itemsManager.GetAllInfos().Values.Where(
@@ -278,38 +282,22 @@ namespace ModTools
                                                                                                                 || info.IsAxe()
                                                                                                                 || info.IsBow()
                                                                                                                 || info.IsArrow()
-                                                                                                                || info.IsBlowpipeArrow()
-                                                                                                                || info.m_ID == ItemID.Stone_Blade
-                                                                                                                || info.m_ID == ItemID.Stick_Blade
-                                                                                                                || info.m_ID == ItemID.Obsidian_Blade
-                                                                                                                || info.m_ID == ItemID.Obsidian_Bone_Blade
-                                                                                                                || info.m_ID == ItemID.Blowpipe_Arrow
-                                                                                                                || info.m_ID == ItemID.Bamboo_Blowpipe
                                                                                                                 || ItemInfo.IsTrap(info.m_ID)
                                                                                                                 ))
             {
                 ItemID weaponItemID = weaponItemInfo.m_ID;
-                if (!m_UnlockedItemInfos.Contains(weaponItemID))
+                if (!m_UnlockedWeaponsTrapsItemInfos.Contains(weaponItemID))
                 {
-                    m_UnlockedItemInfos.Add(weaponItemID);
-                }
-            }
-
-            foreach (ItemInfo explosiveItemInfo in itemsManager.GetAllInfosOfType(ItemType.Dynamite))
-            {
-                ItemID explosiveItemID = explosiveItemInfo.m_ID;
-                if (!m_UnlockedItemInfos.Contains(explosiveItemID))
-                {
-                    m_UnlockedItemInfos.Add(explosiveItemID);
+                    m_UnlockedWeaponsTrapsItemInfos.Add(weaponItemID);
                 }
             }
         }
 
         private static void InitArmorsDataToUnlock()
         {
-            if (m_UnlockedItemInfos == null)
+            if (m_UnlockedArmorItemInfos == null)
             {
-                m_UnlockedItemInfos = new List<ItemID>();
+                m_UnlockedArmorItemInfos = new List<ItemID>();
             }
 
             foreach (ItemInfo armorItemInfo in itemsManager.GetAllInfos().Values.Where(
@@ -318,36 +306,32 @@ namespace ModTools
                                                                                                                 ))
             {
                 ItemID armorItemID = armorItemInfo.m_ID;
-                if (!m_UnlockedItemInfos.Contains(armorItemID))
+                if (!m_UnlockedArmorItemInfos.Contains(armorItemID))
                 {
-                    m_UnlockedItemInfos.Add(armorItemID);
+                    m_UnlockedArmorItemInfos.Add(armorItemID);
                 }
             }
         }
 
         private static void InitToolsDataToUnlock()
         {
-            if (m_UnlockedItemInfos == null)
+            if (m_UnlockedToolsItemInfos == null)
             {
-                m_UnlockedItemInfos = new List<ItemID>();
+                m_UnlockedToolsItemInfos = new List<ItemID>();
             }
 
             foreach (ItemInfo toolItemInfo in itemsManager.GetAllInfos().Values.Where(
                                                                                                 info =>
                                                                                                     info.IsFishingRod()
                                                                                                     || info.IsTorch()
-                                                                                                    || info.m_ID == ItemID.Hand_Drill_Board
-                                                                                                    || info.m_ID == ItemID.Fire_Bow
-                                                                                                    || info.m_ID == ItemID.Hand_Drill_Stick
-                                                                                                    || info.m_ID == ItemID.Fire_Board
+                                                                                                    || info.m_Item.IsFireTool()
                                                                                                     || info.m_ID == ItemID.Coconut_Bidon
-                                                                                                    || info.m_ID == ItemID.Bamboo_Bowl
                                                                                                 ))
             {
                 ItemID itemToolItemID = toolItemInfo.m_ID;
-                if (!m_UnlockedItemInfos.Contains(itemToolItemID))
+                if (!m_UnlockedToolsItemInfos.Contains(itemToolItemID))
                 {
-                    m_UnlockedItemInfos.Add(itemToolItemID);
+                    m_UnlockedToolsItemInfos.Add(itemToolItemID);
                 }
             }
         }
