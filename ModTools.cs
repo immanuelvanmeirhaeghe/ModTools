@@ -100,7 +100,7 @@ namespace ModTools
             GUI.Box(new Rect(500f, 10f, 450f, 150f), "ModTools UI - Press END to open/close", GUI.skin.window);
 
             GUI.Label(new Rect(520f, 30f, 200f, 20f), "Click to unlock fire-water-fishing tools", GUI.skin.label);
-            if (GUI.Button(new Rect(570f, 30f, 150f, 20f), "Unlock tools", GUI.skin.button))
+            if (GUI.Button(new Rect(770f, 30f, 150f, 20f), "Unlock tools", GUI.skin.button))
             {
                 OnClickUnlockToolsButton();
                 showUI = false;
@@ -108,7 +108,7 @@ namespace ModTools
             }
 
             GUI.Label(new Rect(520f, 50f, 300f, 20f), "Click to unlock weapons-traps", GUI.skin.label);
-            if (GUI.Button(new Rect(570f, 50f, 200f, 20f), "Unlock weapons/traps", GUI.skin.button))
+            if (GUI.Button(new Rect(770f, 50f, 150f, 20f), "Unlock weapons/traps", GUI.skin.button))
             {
                 OnClickUnlockWeaponsButton();
                 showUI = false;
@@ -116,7 +116,7 @@ namespace ModTools
             }
 
             GUI.Label(new Rect(520f, 70f, 300f, 20f), "Click to unlock all armor", GUI.skin.label);
-            if (GUI.Button(new Rect(570f, 70f, 200f, 20f), "Unlock armor", GUI.skin.button))
+            if (GUI.Button(new Rect(770f, 70f, 150f, 20f), "Unlock armor", GUI.skin.button))
             {
                 OnClickUnlockArmorButton();
                 showUI = false;
@@ -124,7 +124,12 @@ namespace ModTools
             }
 
             GUI.Label(new Rect(520f, 90f, 300f, 20f), "Use F8 to instantly finish", GUI.skin.label);
-            IsOptionInstantFinishConstructionsActive = GUI.Toggle(new Rect(570f, 90f, 20f, 20f), IsOptionInstantFinishConstructionsActive, "");
+            IsOptionInstantFinishConstructionsActive = GUI.Toggle(new Rect(770f, 90f, 20f, 20f), IsOptionInstantFinishConstructionsActive, "");
+        }
+
+        private static void InitSkinUI()
+        {
+            GUI.skin = ModAPI.Interface.Skin;
         }
 
         public static void OnClickUnlockToolsButton()
@@ -144,8 +149,8 @@ namespace ModTools
             try
             {
                 UnlockAllWeapons();
-                GetBlowgun();
-                GetBlowpipeArrows(5);
+                //GetBlowgun();
+                //GetBlowpipeArrows(5);
             }
             catch (Exception ex)
             {
@@ -452,11 +457,6 @@ namespace ModTools
             {
                 m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.mud_charcoal_furnace));
             }
-        }
-
-        private static void InitSkinUI()
-        {
-            GUI.skin = ModAPI.Interface.Skin;
         }
 
         private static void EnableCursor(bool enabled = false)

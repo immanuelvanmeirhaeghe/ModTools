@@ -4,7 +4,7 @@
     <EN>ModTools</EN>
   </Name>
   <Description>
-    <EN>ModTools is a mod for Green Hell that gives the player the option to unlock tools, weapons and armor.  It also gives the player the possibility to instantly finish any ongoing building. Press Pause to activate the mod.  Press F8 to finish all constructions (if enabled).  Only single player mode.</EN>
+    <EN>ModTools is a mod for Green Hell that gives the player the option to unlock tools, weapons and armor.  It also gives the player the possibility to instantly finish any ongoing building.</EN>
   </Description>
-  <Version>1.0.0.0</Version>
+  <Version>1.0.2.0</Version>
 </Mod>

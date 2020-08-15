@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ModAPI.GH.ModTools")]
-[assembly: AssemblyDescription("ModTools is a mod for Green Hell that gives the player the option to unlock tools, weapons and armor.  It also gives the player the possibility to instantly finish any ongoing building. Press Pause to activate the mod.  Press F8 to finish all constructions (if enabled).  Only single player mode.")]
+[assembly: AssemblyTitle("ModAP.ModTools")]
+[assembly: AssemblyDescription("ModTools is a mod for Green Hell that gives the player the option to unlock tools, weapons and armor.  It also gives the player the possibility to instantly finish any ongoing building.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Dragon Legion")]
-[assembly: AssemblyProduct("ModAPI.GH.ModTools")]
+[assembly: AssemblyProduct("ModAPI.ModTools")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.2.0")]
+[assembly: AssemblyFileVersion("1.0.2.0")]
