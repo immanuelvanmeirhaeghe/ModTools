@@ -56,6 +56,9 @@
       <HintPath>../../../modlib/GH/GH_data/Managed/EasyRagdollCreatorLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ModManager">
+      <HintPath>..\..\..\libs\ModManager.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Posix">
       <HintPath>../../../modlib/GH/GH_data/Managed/Mono.Posix.dll</HintPath>
       <Private>False</Private>
@@ -344,6 +347,7 @@
   <ItemGroup>
     <Compile Include="Extensions\ConstructionGhostManagerExtended.cs" />
     <Compile Include="Extensions\PlayerExtended.cs" />
+    <Compile Include="Extensions\TrapExtended.cs" />
     <Compile Include="ModTools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
