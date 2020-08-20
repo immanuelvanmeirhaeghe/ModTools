@@ -20,16 +20,22 @@ namespace ModTools
         private static Player player;
 
         public static List<ItemInfo> m_UnlockedToolsItemInfos = new List<ItemInfo>();
+        private static bool m_UnlockedTools;
+        public static bool HasUnlockedTools => m_UnlockedTools;
+
         public static List<ItemInfo> m_UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+        private static bool m_UnlockedWeaponsTraps;
+        public static bool HasUnlockedWeapons => m_UnlockedWeaponsTraps;
+
+        private static bool m_HasBlowgun;
+        public static bool HasBlowgun => m_HasBlowgun;
+
         public static List<ItemInfo> m_UnlockedArmorItemInfos = new List<ItemInfo>();
+        private static bool m_UnlockedArmor;
+        public static bool HasUnlockedArmor => m_UnlockedArmor;
 
-        public bool IsModToolsActive;
-        public static bool HasUnlockedTools = false;
-        public static bool HasUnlockedWeapons = false;
-        public static bool HasUnlockedArmor = false;
-        public bool IsOptionInstantFinishConstructionsActive;
-
-        public bool IsLocalOrHost => ReplTools.AmIMaster();
+        private bool m_IsOptionInstantFinishConstructionsActive;
+        public bool UseOptionF8 => m_IsOptionInstantFinishConstructionsActive;
 
         /// <summary>
         /// ModAPI required security check to enable this mod feature for multiplayer.
@@ -38,18 +44,10 @@ namespace ModTools
         /// </summary>
         /// <returns>true if enabled, else false</returns>
         public bool IsModActiveForMultiplayer => FindObjectOfType(typeof(ModManager.ModManager)) != null ? ModManager.ModManager.AllowModsForMultiplayer : false;
-
-        public bool UseOptionF8
-        {
-            get
-            {
-                return IsOptionInstantFinishConstructionsActive;
-            }
-        }
+        public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
 
         public ModTools()
         {
-            IsModToolsActive = true;
             s_Instance = this;
         }
 
@@ -58,15 +56,51 @@ namespace ModTools
             return s_Instance;
         }
 
+        public static void ShowHUDBigInfo(string text, string header, string textureName)
+        {
+            HUDBigInfo obj = (HUDBigInfo)hUDManager.GetHUD(typeof(HUDBigInfo));
+            HUDBigInfoData data = new HUDBigInfoData
+            {
+                m_Header = header,
+                m_Text = text,
+                m_TextureName = textureName,
+                m_ShowTime = Time.time
+            };
+            obj.AddInfo(data);
+            obj.Show(show: true);
+        }
+
+        public static void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
+        {
+            Localization localization = GreenHellGame.Instance.GetLocalization();
+            ((HUDMessages)hUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
+        }
+
+        private static void EnableCursor(bool enabled = false)
+        {
+            CursorManager.Get().ShowCursor(enabled);
+            player = Player.Get();
+            if (enabled)
+            {
+                player.BlockMoves();
+                player.BlockRotation();
+                player.BlockInspection();
+            }
+            else
+            {
+                player.UnblockMoves();
+                player.UnblockRotation();
+                player.UnblockInspection();
+            }
+        }
+
         private void Update()
         {
-            if ((IsLocalOrHost || IsModActiveForMultiplayer) && Input.GetKeyDown(KeyCode.End))
+            if (Input.GetKeyDown(KeyCode.End))
             {
                 if (!showUI)
                 {
-                    itemsManager = ItemsManager.Get();
-                    hUDManager = HUDManager.Get();
-                    player = Player.Get();
+                    InitData();
                     EnableCursor(enabled: true);
                 }
                 showUI = !showUI;
@@ -123,8 +157,22 @@ namespace ModTools
                 EnableCursor();
             }
 
-            GUI.Label(new Rect(520f, 90f, 300f, 20f), "Use F8 to instantly finish", GUI.skin.label);
-            IsOptionInstantFinishConstructionsActive = GUI.Toggle(new Rect(770f, 90f, 20f, 20f), IsOptionInstantFinishConstructionsActive, "");
+            CreateF8Option();
+        }
+
+        private void CreateF8Option()
+        {
+            if (IsModActiveForSingleplayer || IsModActiveForMultiplayer)
+            {
+                GUI.Label(new Rect(520f, 90f, 300f, 20f), "Use F8 to instantly finish", GUI.skin.label);
+                m_IsOptionInstantFinishConstructionsActive = GUI.Toggle(new Rect(770f, 90f, 20f, 20f), m_IsOptionInstantFinishConstructionsActive, "");
+            }
+            else
+            {
+                GUI.Label(new Rect(520f, 90f, 330f, 20f), "Use F8 to instantly to finish any constructions", GUI.skin.label);
+                GUI.Label(new Rect(520f, 110f, 330f, 20f), "is only for single player or when host", GUI.skin.label);
+                GUI.Label(new Rect(520f, 130f, 330f, 20f), "Host can activate using ModManager.", GUI.skin.label);
+            }
         }
 
         private static void InitSkinUI()
@@ -132,7 +180,7 @@ namespace ModTools
             GUI.skin = ModAPI.Interface.Skin;
         }
 
-        public static void OnClickUnlockToolsButton()
+        private static void OnClickUnlockToolsButton()
         {
             try
             {
@@ -144,7 +192,7 @@ namespace ModTools
             }
         }
 
-        public static void OnClickUnlockWeaponsButton()
+        private static void OnClickUnlockWeaponsButton()
         {
             try
             {
@@ -166,6 +214,7 @@ namespace ModTools
                 ItemInfo blowPipeItemInfo = itemsManager.GetInfo(ItemID.Bamboo_Blowpipe);
                 player.AddItemToInventory(blowPipeItemInfo.m_ID.ToString());
                 ShowHUDBigInfo($"Added {count} x {itemsManager.GetInfo(ItemID.Bamboo_Blowpipe).GetNameToDisplayLocalized()} to inventory", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+                m_HasBlowgun = true;
             }
             catch (Exception exc)
             {
@@ -191,7 +240,7 @@ namespace ModTools
             }
         }
 
-        public static void OnClickUnlockArmorButton()
+        private static void OnClickUnlockArmorButton()
         {
             try
             {
@@ -207,7 +256,7 @@ namespace ModTools
         {
             try
             {
-                if (!HasUnlockedArmor)
+                if (!m_UnlockedArmor)
                 {
                     m_UnlockedArmorItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsArmor()).ToList();
 
@@ -217,11 +266,11 @@ namespace ModTools
                         itemsManager.UnlockItemInfo(unlockedArmorItemInfo.m_ID.ToString());
                         ShowHUDInfoLog(unlockedArmorItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
-                    HasUnlockedArmor = true;
+                    m_UnlockedArmor = true;
                 }
                 else
                 {
-                    ShowHUDBigInfo("All armor were already unlocked", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+                    ShowHUDBigInfo("All armor were already unlocked!", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
                 }
             }
             catch (Exception exc)
@@ -234,7 +283,7 @@ namespace ModTools
         {
             try
             {
-                if (!HasUnlockedWeapons)
+                if (!m_UnlockedWeaponsTraps)
                 {
                     m_UnlockedWeaponsTrapsItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsWeapon() || ItemInfo.IsTrap(info.m_ID)).ToList();
 
@@ -244,7 +293,7 @@ namespace ModTools
                         itemsManager.UnlockItemInfo(unlockedWeaponTrapItemInfo.m_ID.ToString());
                         ShowHUDInfoLog(unlockedWeaponTrapItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
-                    HasUnlockedWeapons = true;
+                    m_UnlockedWeaponsTraps = true;
                 }
                 else
                 {
@@ -261,7 +310,7 @@ namespace ModTools
         {
             try
             {
-                if (!HasUnlockedTools)
+                if (!m_UnlockedTools)
                 {
                     m_UnlockedToolsItemInfos = itemsManager.GetAllInfos().Values.Where(info =>
                                                                                                                                                                 info.IsTool() || info.IsTorch() || info.IsFishingRod()
@@ -277,7 +326,7 @@ namespace ModTools
                         itemsManager.UnlockItemInNotepad(unlockedToolsItemInfo.m_ID);
                         ShowHUDInfoLog(unlockedToolsItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
-                    HasUnlockedTools = true;
+                    m_UnlockedTools = true;
                 }
                 else
                 {
@@ -288,26 +337,6 @@ namespace ModTools
             {
                 ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(UnlockAllTools)}] throws exception: {exc.Message}");
             }
-        }
-
-        public static void ShowHUDBigInfo(string text, string header, string textureName)
-        {
-            HUDBigInfo obj = (HUDBigInfo)hUDManager.GetHUD(typeof(HUDBigInfo));
-            HUDBigInfoData data = new HUDBigInfoData
-            {
-                m_Header = header,
-                m_Text = text,
-                m_TextureName = textureName,
-                m_ShowTime = Time.time
-            };
-            obj.AddInfo(data);
-            obj.Show(show: true);
-        }
-
-        public static void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
-        {
-            Localization localization = GreenHellGame.Instance.GetLocalization();
-            ((HUDMessages)hUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
         }
 
         public static void UnlockWaterTools()
@@ -459,22 +488,5 @@ namespace ModTools
             }
         }
 
-        private static void EnableCursor(bool enabled = false)
-        {
-            CursorManager.Get().ShowCursor(enabled);
-            player = Player.Get();
-            if (enabled)
-            {
-                player.BlockMoves();
-                player.BlockRotation();
-                player.BlockInspection();
-            }
-            else
-            {
-                player.UnblockMoves();
-                player.UnblockRotation();
-                player.UnblockInspection();
-            }
-        }
     }
 }

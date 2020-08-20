@@ -7,7 +7,7 @@ namespace ModTools
     {
         protected override void Update()
         {
-                if ( (ModTools.Get().IsLocalOrHost || ModTools.Get().IsModActiveForMultiplayer) && ModTools.Get().UseOptionF8  && Input.GetKeyDown(KeyCode.F8))
+                if ( (ModTools.Get().IsModActiveForSingleplayer || ModTools.Get().IsModActiveForMultiplayer) && ModTools.Get().UseOptionF8  && Input.GetKeyDown(KeyCode.F8))
                 {
                     foreach (ConstructionGhost m_Unfinished in m_AllGhosts.Where(
                                               m_Ghost => m_Ghost.gameObject.activeSelf
