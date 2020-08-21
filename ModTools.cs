@@ -19,23 +19,16 @@ namespace ModTools
 
         private static Player player;
 
-        public static List<ItemInfo> m_UnlockedToolsItemInfos = new List<ItemInfo>();
-        private static bool m_UnlockedTools;
-        public static bool HasUnlockedTools => m_UnlockedTools;
+        private static List<ItemInfo> m_UnlockedToolsItemInfos = new List<ItemInfo>();
+        public static bool HasUnlockedTools { get; private set; }
 
-        public static List<ItemInfo> m_UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
-        private static bool m_UnlockedWeaponsTraps;
-        public static bool HasUnlockedWeapons => m_UnlockedWeaponsTraps;
+        private static List<ItemInfo> m_UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+        public static bool HasUnlockedWeapons { get; private set; }
+        public static bool HasBlowgun { get; private set; }
 
-        private static bool m_HasBlowgun;
-        public static bool HasBlowgun => m_HasBlowgun;
-
-        public static List<ItemInfo> m_UnlockedArmorItemInfos = new List<ItemInfo>();
-        private static bool m_UnlockedArmor;
-        public static bool HasUnlockedArmor => m_UnlockedArmor;
-
-        private bool m_IsOptionInstantFinishConstructionsActive;
-        public bool UseOptionF8 => m_IsOptionInstantFinishConstructionsActive;
+        private static List<ItemInfo> m_UnlockedArmorItemInfos = new List<ItemInfo>();
+        public static bool HasUnlockedArmor { get; private set; }
+        public bool UseOptionF8 { get; private set; }
 
         /// <summary>
         /// ModAPI required security check to enable this mod feature for multiplayer.
@@ -96,7 +89,7 @@ namespace ModTools
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.End))
+            if (Input.GetKeyDown(KeyCode.Home))
             {
                 if (!showUI)
                 {
@@ -131,7 +124,7 @@ namespace ModTools
 
         private void InitModUI()
         {
-            GUI.Box(new Rect(500f, 10f, 450f, 150f), "ModTools UI - Press END to open/close", GUI.skin.window);
+            GUI.Box(new Rect(500f, 10f, 450f, 150f), "ModTools UI - Press HOME to open/close", GUI.skin.window);
 
             GUI.Label(new Rect(520f, 30f, 200f, 20f), "Click to unlock fire-water-fishing tools", GUI.skin.label);
             if (GUI.Button(new Rect(770f, 30f, 150f, 20f), "Unlock tools", GUI.skin.button))
@@ -141,7 +134,7 @@ namespace ModTools
                 EnableCursor();
             }
 
-            GUI.Label(new Rect(520f, 50f, 300f, 20f), "Click to unlock weapons-traps", GUI.skin.label);
+            GUI.Label(new Rect(520f, 50f, 200f, 20f), "Click to unlock weapons-traps", GUI.skin.label);
             if (GUI.Button(new Rect(770f, 50f, 150f, 20f), "Unlock weapons/traps", GUI.skin.button))
             {
                 OnClickUnlockWeaponsButton();
@@ -149,7 +142,7 @@ namespace ModTools
                 EnableCursor();
             }
 
-            GUI.Label(new Rect(520f, 70f, 300f, 20f), "Click to unlock all armor", GUI.skin.label);
+            GUI.Label(new Rect(520f, 70f, 200f, 20f), "Click to unlock all armor", GUI.skin.label);
             if (GUI.Button(new Rect(770f, 70f, 150f, 20f), "Unlock armor", GUI.skin.button))
             {
                 OnClickUnlockArmorButton();
@@ -164,8 +157,8 @@ namespace ModTools
         {
             if (IsModActiveForSingleplayer || IsModActiveForMultiplayer)
             {
-                GUI.Label(new Rect(520f, 90f, 300f, 20f), "Use F8 to instantly finish", GUI.skin.label);
-                m_IsOptionInstantFinishConstructionsActive = GUI.Toggle(new Rect(770f, 90f, 20f, 20f), m_IsOptionInstantFinishConstructionsActive, "");
+                GUI.Label(new Rect(520f, 90f, 200f, 20f), "Use F8 to instantly finish", GUI.skin.label);
+                UseOptionF8 = GUI.Toggle(new Rect(770f, 90f, 20f, 20f), UseOptionF8, "");
             }
             else
             {
@@ -186,9 +179,9 @@ namespace ModTools
             {
                 UnlockAllTools();
             }
-            catch (Exception ex)
+            catch (Exception exc)
             {
-                ModAPI.Log.Write("[ModTools.ModTools:OnClickUnlockToolsButton] throws exception: " + ex.Message);
+                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(OnClickUnlockToolsButton)}] throws exception: {exc.Message}");
             }
         }
 
@@ -200,43 +193,9 @@ namespace ModTools
                 //GetBlowgun();
                 //GetBlowpipeArrows(5);
             }
-            catch (Exception ex)
-            {
-                ModAPI.Log.Write("[ModTools.ModTools:OnClickUnlockWeaponsButton] throws exception: " + ex.Message);
-            }
-        }
-
-        public static void GetBlowgun(int count = 1)
-        {
-            try
-            {
-                itemsManager.UnlockItemInfo(ItemID.Bamboo_Blowpipe.ToString());
-                ItemInfo blowPipeItemInfo = itemsManager.GetInfo(ItemID.Bamboo_Blowpipe);
-                player.AddItemToInventory(blowPipeItemInfo.m_ID.ToString());
-                ShowHUDBigInfo($"Added {count} x {itemsManager.GetInfo(ItemID.Bamboo_Blowpipe).GetNameToDisplayLocalized()} to inventory", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
-                m_HasBlowgun = true;
-            }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(GetBlowgun)}] throws exception: {exc.Message}");
-            }
-        }
-
-        public static void GetBlowpipeArrows(int count = 1)
-        {
-            try
-            {
-                itemsManager.UnlockItemInfo(ItemID.Blowpipe_Arrow.ToString());
-                ItemInfo blowPipeArrowItemInfo = itemsManager.GetInfo(ItemID.Blowpipe_Arrow);
-                for (int i = 0; i < count; i++)
-                {
-                    player.AddItemToInventory(blowPipeArrowItemInfo.m_ID.ToString());
-                }
-                ShowHUDBigInfo($"Added {count} x {itemsManager.GetInfo(ItemID.Blowpipe_Arrow).GetNameToDisplayLocalized()} to inventory", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
-            }
-            catch (Exception exc)
-            {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(GetBlowpipeArrows)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(OnClickUnlockWeaponsButton)}] throws exception: {exc.Message}");
             }
         }
 
@@ -246,9 +205,47 @@ namespace ModTools
             {
                 UnlockAllArmor();
             }
-            catch (Exception ex)
+            catch (Exception exc)
             {
-                ModAPI.Log.Write("[ModTools.ModTools:OnClickUnlockArmorButton] throws exception: " + ex.Message);
+                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(OnClickUnlockArmorButton)}] throws exception: {exc.Message}");
+            }
+        }
+
+        public static void GetBlowgun()
+        {
+            try
+            {
+                itemsManager.UnlockItemInfo(ItemID.Bamboo_Blowpipe.ToString());
+                ItemInfo blowPipeItemInfo = itemsManager.GetInfo(ItemID.Bamboo_Blowpipe);
+                player.AddItemToInventory(blowPipeItemInfo.m_ID.ToString());
+                ShowHUDBigInfo($"Added 1 x {blowPipeItemInfo.GetNameToDisplayLocalized()} to inventory", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+                HasBlowgun = true;
+            }
+            catch (Exception exc)
+            {
+                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(GetBlowgun)}] throws exception: {exc.Message}");
+            }
+        }
+
+        public static void GetMaxThreeBlowpipeArrow(int count = 1)
+        {
+            try
+            {
+                if (count > 3)
+                {
+                    count = 3;
+                }
+                itemsManager.UnlockItemInfo(ItemID.Blowpipe_Arrow.ToString());
+                ItemInfo blowPipeArrowItemInfo = itemsManager.GetInfo(ItemID.Blowpipe_Arrow);
+                for (int i = 0; i < count; i++)
+                {
+                    player.AddItemToInventory(blowPipeArrowItemInfo.m_ID.ToString());
+                }
+                ShowHUDBigInfo($"Added {count} x {blowPipeArrowItemInfo.GetNameToDisplayLocalized()} to inventory", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+            }
+            catch (Exception exc)
+            {
+                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(GetMaxThreeBlowpipeArrow)}] throws exception: {exc.Message}");
             }
         }
 
@@ -256,7 +253,7 @@ namespace ModTools
         {
             try
             {
-                if (!m_UnlockedArmor)
+                if (!HasUnlockedArmor)
                 {
                     m_UnlockedArmorItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsArmor()).ToList();
 
@@ -266,7 +263,7 @@ namespace ModTools
                         itemsManager.UnlockItemInfo(unlockedArmorItemInfo.m_ID.ToString());
                         ShowHUDInfoLog(unlockedArmorItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
-                    m_UnlockedArmor = true;
+                    HasUnlockedArmor = true;
                 }
                 else
                 {
@@ -283,7 +280,7 @@ namespace ModTools
         {
             try
             {
-                if (!m_UnlockedWeaponsTraps)
+                if (!HasUnlockedWeapons)
                 {
                     m_UnlockedWeaponsTrapsItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsWeapon() || ItemInfo.IsTrap(info.m_ID)).ToList();
 
@@ -293,11 +290,11 @@ namespace ModTools
                         itemsManager.UnlockItemInfo(unlockedWeaponTrapItemInfo.m_ID.ToString());
                         ShowHUDInfoLog(unlockedWeaponTrapItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
-                    m_UnlockedWeaponsTraps = true;
+                    HasUnlockedWeapons = true;
                 }
                 else
                 {
-                    ShowHUDBigInfo("All weapons and traps were already unlocked", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+                    ShowHUDBigInfo("All weapons and traps were already unlocked!", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
                 }
             }
             catch (Exception exc)
@@ -310,11 +307,9 @@ namespace ModTools
         {
             try
             {
-                if (!m_UnlockedTools)
+                if (!HasUnlockedTools)
                 {
-                    m_UnlockedToolsItemInfos = itemsManager.GetAllInfos().Values.Where(info =>
-                                                                                                                                                                info.IsTool() || info.IsTorch() || info.IsFishingRod()
-                                                                                                                                                                || ItemInfo.IsSmoker(info.m_ID) || ItemInfo.IsStoneRing(info.m_ID) || ItemInfo.IsFirecamp(info.m_ID)).ToList();
+                    m_UnlockedToolsItemInfos = itemsManager.GetAllInfos().Values.Where(info =>info.IsTool() || info.IsTorch() || info.IsFishingRod()).ToList();
 
                     UnlockFireTools();
                     UnlockFishingTools();
@@ -326,7 +321,7 @@ namespace ModTools
                         itemsManager.UnlockItemInNotepad(unlockedToolsItemInfo.m_ID);
                         ShowHUDInfoLog(unlockedToolsItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
-                    m_UnlockedTools = true;
+                    HasUnlockedTools = true;
                 }
                 else
                 {
