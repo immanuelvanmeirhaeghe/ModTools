@@ -2,12 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace ModTools
 {
-    class ModTools : MonoBehaviour
+    /// <summary>
+    /// ModTools is a mod for Green Hell
+    /// that gives the player the option to unlock tools, weapons and armor.
+    /// Enable the mod UI by pressing Home.
+    /// </summary>
+    public class ModTools : MonoBehaviour
     {
         private static ModTools s_Instance;
 
@@ -36,7 +40,7 @@ namespace ModTools
         /// Based on request in chat: use  !requestMods in chat as client to request the host to activate mods for them.
         /// </summary>
         /// <returns>true if enabled, else false</returns>
-        public bool IsModActiveForMultiplayer => FindObjectOfType(typeof(ModManager.ModManager)) != null ? ModManager.ModManager.AllowModsForMultiplayer : false;
+        //public bool IsModActiveForMultiplayer => FindObjectOfType(typeof(ModManager.ModManager)) != null ? ModManager.ModManager.AllowModsForMultiplayer : false;
         public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
 
         public ModTools()
@@ -109,6 +113,7 @@ namespace ModTools
             if (showUI)
             {
                 InitData();
+                InitSkinUI();
                 InitModUI();
             }
         }
@@ -118,8 +123,11 @@ namespace ModTools
             itemsManager = ItemsManager.Get();
             hUDManager = HUDManager.Get();
             player = Player.Get();
+        }
 
-            InitSkinUI();
+        private static void InitSkinUI()
+        {
+            GUI.skin = ModAPI.Interface.Skin;
         }
 
         private void InitModUI()
@@ -150,27 +158,11 @@ namespace ModTools
                 EnableCursor();
             }
 
-            CreateF8Option();
-        }
-
-        private void CreateF8Option()
-        {
-            if (IsModActiveForSingleplayer || IsModActiveForMultiplayer)
+            if (GUI.Button(new Rect(770f, 90f, 150f, 20f), "CANCEL", GUI.skin.button))
             {
-                GUI.Label(new Rect(520f, 90f, 200f, 20f), "Use F8 to instantly finish", GUI.skin.label);
-                UseOptionF8 = GUI.Toggle(new Rect(770f, 90f, 20f, 20f), UseOptionF8, "");
+                showUI = false;
+                EnableCursor(false);
             }
-            else
-            {
-                GUI.Label(new Rect(520f, 90f, 330f, 20f), "Use F8 to instantly to finish any constructions", GUI.skin.label);
-                GUI.Label(new Rect(520f, 110f, 330f, 20f), "is only for single player or when host", GUI.skin.label);
-                GUI.Label(new Rect(520f, 130f, 330f, 20f), "Host can activate using ModManager.", GUI.skin.label);
-            }
-        }
-
-        private static void InitSkinUI()
-        {
-            GUI.skin = ModAPI.Interface.Skin;
         }
 
         private static void OnClickUnlockToolsButton()
@@ -309,7 +301,7 @@ namespace ModTools
             {
                 if (!HasUnlockedTools)
                 {
-                    m_UnlockedToolsItemInfos = itemsManager.GetAllInfos().Values.Where(info =>info.IsTool() || info.IsTorch() || info.IsFishingRod()).ToList();
+                    m_UnlockedToolsItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsTool() || info.IsTorch() || info.IsFishingRod()).ToList();
 
                     UnlockFireTools();
                     UnlockFishingTools();
