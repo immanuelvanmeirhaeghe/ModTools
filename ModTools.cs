@@ -133,6 +133,11 @@ namespace ModTools
         private void InitModUI()
         {
             GUI.Box(new Rect(500f, 10f, 450f, 150f), "ModTools UI - Press HOME to open/close", GUI.skin.window);
+            if (GUI.Button(new Rect(500f, 430f, 150f, 20f), "X", GUI.skin.button))
+            {
+                showUI = false;
+                EnableCursor(false);
+            }
 
             GUI.Label(new Rect(520f, 30f, 200f, 20f), "Click to unlock fire-water-fishing tools", GUI.skin.label);
             if (GUI.Button(new Rect(770f, 30f, 150f, 20f), "Unlock tools", GUI.skin.button))
@@ -158,11 +163,6 @@ namespace ModTools
                 EnableCursor();
             }
 
-            if (GUI.Button(new Rect(770f, 90f, 150f, 20f), "CANCEL", GUI.skin.button))
-            {
-                showUI = false;
-                EnableCursor(false);
-            }
         }
 
         private static void OnClickUnlockToolsButton()
