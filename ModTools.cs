@@ -17,6 +17,8 @@ namespace ModTools
 
         private bool showUI;
 
+        public Rect ModToolsWindow = new Rect(500f, 10f, 450f, 150f);
+
         private static ItemsManager itemsManager;
 
         private static HUDManager hUDManager;
@@ -34,17 +36,12 @@ namespace ModTools
         public static bool HasUnlockedArmor { get; private set; }
         public bool UseOptionF8 { get; private set; }
 
-        /// <summary>
-        /// ModAPI required security check to enable this mod feature for multiplayer.
-        /// See <see cref="ModManager"/> for implementation.
-        /// Based on request in chat: use  !requestMods in chat as client to request the host to activate mods for them.
-        /// </summary>
-        /// <returns>true if enabled, else false</returns>
-        //public bool IsModActiveForMultiplayer => FindObjectOfType(typeof(ModManager.ModManager)) != null ? ModManager.ModManager.AllowModsForMultiplayer : false;
+        public bool IsModActiveForMultiplayer => FindObjectOfType(typeof(ModManager.ModManager)) != null && ModManager.ModManager.AllowModsForMultiplayer;
         public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
 
         public ModTools()
         {
+            useGUILayout = true;
             s_Instance = this;
         }
 
@@ -73,11 +70,11 @@ namespace ModTools
             ((HUDMessages)hUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
         }
 
-        private static void EnableCursor(bool enabled = false)
+        private void EnableCursor(bool blockPlayer = false)
         {
-            CursorManager.Get().ShowCursor(enabled);
+            CursorManager.Get().ShowCursor(blockPlayer);
             player = Player.Get();
-            if (enabled)
+            if (blockPlayer)
             {
                 player.BlockMoves();
                 player.BlockRotation();
@@ -98,7 +95,7 @@ namespace ModTools
                 if (!showUI)
                 {
                     InitData();
-                    EnableCursor(enabled: true);
+                    EnableCursor(blockPlayer: true);
                 }
                 showUI = !showUI;
                 if (!showUI)
@@ -114,58 +111,63 @@ namespace ModTools
             {
                 InitData();
                 InitSkinUI();
-                InitModUI();
+                InitWindow();
             }
         }
 
-        private static void InitData()
+        private void InitWindow()
+        {
+            ModToolsWindow = GUI.Window(0, ModToolsWindow,InitModWindow, $"{nameof(ModTools)}", GUI.skin.window);
+        }
+
+        private void InitData()
         {
             itemsManager = ItemsManager.Get();
             hUDManager = HUDManager.Get();
             player = Player.Get();
         }
 
-        private static void InitSkinUI()
+        private void InitSkinUI()
         {
             GUI.skin = ModAPI.Interface.Skin;
         }
 
-        private void InitModUI()
+        private void InitModWindow(int windowId)
         {
-            GUI.Box(new Rect(500f, 10f, 450f, 150f), "ModTools UI - Press HOME to open/close", GUI.skin.window);
-            if (GUI.Button(new Rect(500f, 430f, 150f, 20f), "X", GUI.skin.button))
+            if (GUI.Button(new Rect(930f, 10f, 20f, 20f), "X", GUI.skin.button))
             {
-                showUI = false;
-                EnableCursor(false);
+                CloseWindow();
             }
 
-            GUI.Label(new Rect(520f, 30f, 200f, 20f), "Click to unlock fire-water-fishing tools", GUI.skin.label);
+            GUI.Label(new Rect(520f, 30f, 200f, 20f), "All fire-water-fishing tools", GUI.skin.label);
             if (GUI.Button(new Rect(770f, 30f, 150f, 20f), "Unlock tools", GUI.skin.button))
             {
                 OnClickUnlockToolsButton();
-                showUI = false;
-                EnableCursor();
+                CloseWindow();
             }
 
-            GUI.Label(new Rect(520f, 50f, 200f, 20f), "Click to unlock weapons-traps", GUI.skin.label);
+            GUI.Label(new Rect(520f, 50f, 200f, 20f), "All weapons and traps", GUI.skin.label);
             if (GUI.Button(new Rect(770f, 50f, 150f, 20f), "Unlock weapons/traps", GUI.skin.button))
             {
                 OnClickUnlockWeaponsButton();
-                showUI = false;
-                EnableCursor();
+                CloseWindow();
             }
 
-            GUI.Label(new Rect(520f, 70f, 200f, 20f), "Click to unlock all armor", GUI.skin.label);
+            GUI.Label(new Rect(520f, 70f, 200f, 20f), "All types of armor", GUI.skin.label);
             if (GUI.Button(new Rect(770f, 70f, 150f, 20f), "Unlock armor", GUI.skin.button))
             {
                 OnClickUnlockArmorButton();
-                showUI = false;
-                EnableCursor();
+                CloseWindow();
             }
-
         }
 
-        private static void OnClickUnlockToolsButton()
+        private void CloseWindow()
+        {
+            showUI = false;
+            EnableCursor(false);
+        }
+
+        private void OnClickUnlockToolsButton()
         {
             try
             {
@@ -177,7 +179,7 @@ namespace ModTools
             }
         }
 
-        private static void OnClickUnlockWeaponsButton()
+        private void OnClickUnlockWeaponsButton()
         {
             try
             {
@@ -191,7 +193,7 @@ namespace ModTools
             }
         }
 
-        private static void OnClickUnlockArmorButton()
+        private void OnClickUnlockArmorButton()
         {
             try
             {
@@ -203,7 +205,7 @@ namespace ModTools
             }
         }
 
-        public static void GetBlowgun()
+        public void GetBlowgun()
         {
             try
             {
@@ -219,7 +221,7 @@ namespace ModTools
             }
         }
 
-        public static void GetMaxThreeBlowpipeArrow(int count = 1)
+        public void GetMaxThreeBlowpipeArrow(int count = 1)
         {
             try
             {
@@ -241,7 +243,7 @@ namespace ModTools
             }
         }
 
-        public static void UnlockAllArmor()
+        public void UnlockAllArmor()
         {
             try
             {
@@ -268,7 +270,7 @@ namespace ModTools
             }
         }
 
-        public static void UnlockAllWeapons()
+        public void UnlockAllWeapons()
         {
             try
             {
@@ -295,7 +297,7 @@ namespace ModTools
             }
         }
 
-        public static void UnlockAllTools()
+        public void UnlockAllTools()
         {
             try
             {
@@ -326,7 +328,7 @@ namespace ModTools
             }
         }
 
-        public static void UnlockWaterTools()
+        public void UnlockWaterTools()
         {
             if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Coconut_Bidon)))
             {
@@ -379,7 +381,7 @@ namespace ModTools
             }
         }
 
-        public static void UnlockFishingTools()
+        public void UnlockFishingTools()
         {
             if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Fishing_Rod_Bone)))
             {
@@ -397,7 +399,7 @@ namespace ModTools
             }
         }
 
-        public static void UnlockFireTools()
+        public void UnlockFireTools()
         {
             if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Small_Fire)))
             {

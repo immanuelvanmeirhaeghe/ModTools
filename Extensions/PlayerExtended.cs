@@ -10,7 +10,7 @@ namespace ModTools
         protected override void Start()
         {
             base.Start();
-            new GameObject("__ModTools__").AddComponent<ModTools>();
+            new GameObject($"__{nameof(ModTools)}__").AddComponent<ModTools>();
         }
     }
 }
