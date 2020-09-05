@@ -50,7 +50,7 @@ namespace ModTools
             return s_Instance;
         }
 
-        public static void ShowHUDBigInfo(string text, string header, string textureName)
+        public void ShowHUDBigInfo(string text, string header, string textureName)
         {
             HUDBigInfo obj = (HUDBigInfo)hUDManager.GetHUD(typeof(HUDBigInfo));
             HUDBigInfoData data = new HUDBigInfoData
@@ -64,7 +64,7 @@ namespace ModTools
             obj.Show(show: true);
         }
 
-        public static void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
+        public void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
         {
             Localization localization = GreenHellGame.Instance.GetLocalization();
             ((HUDMessages)hUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
@@ -117,7 +117,8 @@ namespace ModTools
 
         private void InitWindow()
         {
-            ModToolsWindow = GUI.Window(0, ModToolsWindow,InitModWindow, $"{nameof(ModTools)}", GUI.skin.window);
+            int wid = GetHashCode();
+            ModToolsWindow = GUI.Window(wid, ModToolsWindow,InitModWindow, $"{nameof(ModTools)}", GUI.skin.window);
         }
 
         private void InitData()
