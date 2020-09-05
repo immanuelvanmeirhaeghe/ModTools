@@ -159,6 +159,8 @@ namespace ModTools
                 OnClickUnlockArmorButton();
                 CloseWindow();
             }
+
+            GUI.DragWindow(new Rect(0, 0, 10000, 10000));
         }
 
         private void CloseWindow()
