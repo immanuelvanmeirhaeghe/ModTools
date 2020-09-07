@@ -15,9 +15,11 @@ namespace ModTools
     {
         private static ModTools s_Instance;
 
+        private static readonly string ModName = nameof(ModTools);
+
         private bool showUI;
 
-        public Rect ModToolsWindow = new Rect(500f, 10f, 450f, 150f);
+        public Rect ModToolsScreen = new Rect(10f, 10f, 450f, 150f);
 
         private static ItemsManager itemsManager;
 
@@ -73,7 +75,7 @@ namespace ModTools
         private void EnableCursor(bool blockPlayer = false)
         {
             CursorManager.Get().ShowCursor(blockPlayer);
-            player = Player.Get();
+
             if (blockPlayer)
             {
                 player.BlockMoves();
@@ -118,7 +120,7 @@ namespace ModTools
         private void InitWindow()
         {
             int wid = GetHashCode();
-            ModToolsWindow = GUI.Window(wid, ModToolsWindow,InitModWindow, $"{nameof(ModTools)}", GUI.skin.window);
+            ModToolsScreen = GUILayout.Window(wid, ModToolsScreen, InitModToolsScreen, $"{ModName}", GUI.skin.window);
         }
 
         private void InitData()
@@ -133,35 +135,46 @@ namespace ModTools
             GUI.skin = ModAPI.Interface.Skin;
         }
 
-        private void InitModWindow(int windowId)
+        private void InitModToolsScreen(int windowID)
         {
-            if (GUI.Button(new Rect(930f, 10f, 20f, 20f), "X", GUI.skin.button))
+            using (var verticalScope = new GUILayout.VerticalScope(GUI.skin.box))
             {
-                CloseWindow();
-            }
+                if (GUI.Button(new Rect(430f, 0f, 20f, 20f), "X", GUI.skin.button))
+                {
+                    CloseWindow();
+                }
 
-            GUI.Label(new Rect(520f, 30f, 200f, 20f), "All fire-water-fishing tools", GUI.skin.label);
-            if (GUI.Button(new Rect(770f, 30f, 150f, 20f), "Unlock tools", GUI.skin.button))
-            {
-                OnClickUnlockToolsButton();
-                CloseWindow();
-            }
+                using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
+                {
+                    GUILayout.Label("All fire-water-fishing tools", GUI.skin.label);
+                    if (GUILayout.Button("Unlock tools", GUI.skin.button, GUILayout.MinWidth(100f), GUILayout.MaxWidth(200f)))
+                    {
+                        OnClickUnlockToolsButton();
+                        CloseWindow();
+                    }
+                }
 
-            GUI.Label(new Rect(520f, 50f, 200f, 20f), "All weapons and traps", GUI.skin.label);
-            if (GUI.Button(new Rect(770f, 50f, 150f, 20f), "Unlock weapons/traps", GUI.skin.button))
-            {
-                OnClickUnlockWeaponsButton();
-                CloseWindow();
-            }
+                using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
+                {
+                    GUILayout.Label("All weapons and traps", GUI.skin.label);
+                    if (GUILayout.Button("Unlock weapons/traps", GUI.skin.button, GUILayout.MinWidth(100f), GUILayout.MaxWidth(200f)))
+                    {
+                        OnClickUnlockWeaponsButton();
+                        CloseWindow();
+                    }
+                }
 
-            GUI.Label(new Rect(520f, 70f, 200f, 20f), "All types of armor", GUI.skin.label);
-            if (GUI.Button(new Rect(770f, 70f, 150f, 20f), "Unlock armor", GUI.skin.button))
-            {
-                OnClickUnlockArmorButton();
-                CloseWindow();
+                using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
+                {
+                    GUILayout.Label("All types of armor", GUI.skin.label);
+                    if (GUILayout.Button("Unlock armor", GUI.skin.button, GUILayout.MinWidth(100f), GUILayout.MaxWidth(200f)))
+                    {
+                        OnClickUnlockArmorButton();
+                        CloseWindow();
+                    }
+                }
             }
-
-            GUI.DragWindow(new Rect(0, 0, 10000, 10000));
+            GUI.DragWindow(new Rect(0f, 0f, 10000f, 10000f));
         }
 
         private void CloseWindow()
@@ -178,7 +191,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(OnClickUnlockToolsButton)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(OnClickUnlockToolsButton)}] throws exception: {exc.Message}");
             }
         }
 
@@ -192,7 +205,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(OnClickUnlockWeaponsButton)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(OnClickUnlockWeaponsButton)}] throws exception: {exc.Message}");
             }
         }
 
@@ -204,7 +217,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(OnClickUnlockArmorButton)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(OnClickUnlockArmorButton)}] throws exception: {exc.Message}");
             }
         }
 
@@ -220,7 +233,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(GetBlowgun)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(GetBlowgun)}] throws exception: {exc.Message}");
             }
         }
 
@@ -242,7 +255,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(GetMaxThreeBlowpipeArrow)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(GetMaxThreeBlowpipeArrow)}] throws exception: {exc.Message}");
             }
         }
 
@@ -269,7 +282,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(UnlockAllArmor)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(UnlockAllArmor)}] throws exception: {exc.Message}");
             }
         }
 
@@ -296,7 +309,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(UnlockAllWeapons)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(UnlockAllWeapons)}] throws exception: {exc.Message}");
             }
         }
 
@@ -327,7 +340,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{nameof(ModTools)}.{nameof(ModTools)}:{nameof(UnlockAllTools)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(UnlockAllTools)}] throws exception: {exc.Message}");
             }
         }
 
