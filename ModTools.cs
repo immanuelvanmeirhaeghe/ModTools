@@ -17,9 +17,9 @@ namespace ModTools
 
         private static readonly string ModName = nameof(ModTools);
 
-        private bool showUI;
+        private bool ShowUI;
 
-        public Rect ModToolsScreen = new Rect(10f, 10f, 450f, 150f);
+        public static Rect ModToolsScreen = new Rect(10f, 10f, 450f, 150f);
 
         private static ItemsManager itemsManager;
 
@@ -38,8 +38,19 @@ namespace ModTools
         public static bool HasUnlockedArmor { get; private set; }
         public bool UseOptionF8 { get; private set; }
 
-        public bool IsModActiveForMultiplayer => FindObjectOfType(typeof(ModManager.ModManager)) != null && ModManager.ModManager.AllowModsForMultiplayer;
-        public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
+        private bool _isActiveForMultiplayer;
+        public bool IsModActiveForMultiplayer
+        {
+            get => _isActiveForMultiplayer;
+            set => _isActiveForMultiplayer = FindObjectOfType(typeof(ModManager.ModManager)) != null && ModManager.ModManager.AllowModsForMultiplayer;
+        }
+
+        private bool _isActiveForSingleplayer;
+        public bool IsModActiveForSingleplayer
+        {
+            get => _isActiveForSingleplayer;
+            set => _isActiveForSingleplayer = ReplTools.AmIMaster();
+        }
 
         public ModTools()
         {
@@ -94,22 +105,27 @@ namespace ModTools
         {
             if (Input.GetKeyDown(KeyCode.Home))
             {
-                if (!showUI)
+                if (!ShowUI)
                 {
                     InitData();
                     EnableCursor(blockPlayer: true);
                 }
-                showUI = !showUI;
-                if (!showUI)
+                ToggleShowUI();
+                if (!ShowUI)
                 {
                     EnableCursor();
                 }
             }
         }
 
+        private void ToggleShowUI()
+        {
+            ShowUI = !ShowUI;
+        }
+
         private void OnGUI()
         {
-            if (showUI)
+            if (ShowUI)
             {
                 InitData();
                 InitSkinUI();
@@ -179,7 +195,7 @@ namespace ModTools
 
         private void CloseWindow()
         {
-            showUI = false;
+            ShowUI = false;
             EnableCursor(false);
         }
 
