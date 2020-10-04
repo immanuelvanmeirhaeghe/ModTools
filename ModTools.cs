@@ -19,7 +19,7 @@ namespace ModTools
 
         private bool ShowUI;
 
-        public static Rect ModToolsScreen = new Rect(10f, 10f, 450f, 150f);
+        public static Rect ModToolsScreen = new Rect(Screen.width / 100f, Screen.height / 100f, 450f, 150f);
 
         private static ItemsManager itemsManager;
 
@@ -38,18 +38,25 @@ namespace ModTools
         public static bool HasUnlockedArmor { get; private set; }
         public bool UseOptionF8 { get; private set; }
 
-        private bool _isActiveForMultiplayer;
-        public bool IsModActiveForMultiplayer
+        public bool IsModActiveForMultiplayer { get; private set; }
+        public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
+
+        private static string HUDBigInfoMessage(string message) => $"<color=#{ColorUtility.ToHtmlStringRGBA(Color.red)}>System</color>\n{message}";
+
+        public void Start()
         {
-            get => _isActiveForMultiplayer;
-            set => _isActiveForMultiplayer = FindObjectOfType(typeof(ModManager.ModManager)) != null && ModManager.ModManager.AllowModsForMultiplayer;
+            ModManager.ModManager.onPermissionValueChanged += ModManager_onPermissionValueChanged;
         }
 
-        private bool _isActiveForSingleplayer;
-        public bool IsModActiveForSingleplayer
+        private void ModManager_onPermissionValueChanged(bool optionValue)
         {
-            get => _isActiveForSingleplayer;
-            set => _isActiveForSingleplayer = ReplTools.AmIMaster();
+            IsModActiveForMultiplayer = optionValue;
+            ShowHUDBigInfo(
+                          (optionValue ?
+                            HUDBigInfoMessage($"<color=#{ColorUtility.ToHtmlStringRGBA(Color.green)}>Permission to use mods for multiplayer was granted!</color>")
+                            : HUDBigInfoMessage($"<color=#{ColorUtility.ToHtmlStringRGBA(Color.yellow)}>Permission to use mods for multiplayer was revoked!</color>")),
+                           $"{ModName} Info",
+                           HUDInfoLogTextureType.Count.ToString());
         }
 
         public ModTools()
