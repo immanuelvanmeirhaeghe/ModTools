@@ -26,14 +26,16 @@ namespace ModTools
         private static readonly float ModScreenTotalWidth = 500f;
         private static readonly float ModScreenTotalHeight = 150f;
         private static readonly float ModScreenMinWidth = 50f;
-        private static readonly float ModScreenMinHeight = 30f;
+        private static readonly float ModScreenMaxWidth = 550f;
+        private static readonly float ModScreenMinHeight = 50f;
         private static readonly float ModScreenMaxHeight = 200f;
-
+        private static float ModScreenStartPositionX { get; set; } = (Screen.width - ModScreenMaxWidth) % ModScreenTotalWidth;
+        private static float ModScreenStartPositionY { get; set; } = (Screen.height - ModScreenMaxHeight) % ModScreenTotalHeight;
         private static bool IsMinimized { get; set; } = false;
 
         private bool ShowUI = false;
 
-        public static Rect ModToolsScreen = new Rect(Screen.width / 8f, Screen.height / 8f, ModScreenTotalWidth, ModScreenTotalHeight);
+        public static Rect ModToolsScreen = new Rect(ModScreenStartPositionX, ModScreenStartPositionY, ModScreenTotalWidth, ModScreenTotalHeight);
 
         private static ItemsManager LocalItemsManager;
         private static HUDManager LocalHUDManager;
@@ -193,12 +195,14 @@ namespace ModTools
         {
             if (!IsMinimized)
             {
-                ModToolsScreen.Set(ModToolsScreen.x, Screen.height - ModScreenMinHeight, ModScreenMinWidth, ModScreenMinHeight);
+                ModScreenStartPositionX = ModToolsScreen.x;
+                ModScreenStartPositionY = ModToolsScreen.y;
+                ModToolsScreen.Set(ModToolsScreen.x, ModToolsScreen.y, ModScreenMinWidth, ModScreenMinHeight);
                 IsMinimized = true;
             }
             else
             {
-                ModToolsScreen.Set(ModToolsScreen.x, Screen.height / ModScreenMinHeight, ModScreenTotalWidth, ModScreenTotalHeight);
+                ModToolsScreen.Set(ModScreenStartPositionX, ModScreenStartPositionY, ModScreenTotalWidth, ModScreenTotalHeight);
                 IsMinimized = false;
             }
             InitWindow();
@@ -206,7 +210,14 @@ namespace ModTools
 
         private void InitModToolsScreen(int windowID)
         {
-            using (var modContentScope = new GUILayout.VerticalScope(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.MinHeight(ModScreenMinHeight), GUILayout.MaxHeight(ModScreenMaxHeight)))
+            using (var modContentScope = new GUILayout.VerticalScope(
+                                                                                                        GUI.skin.box,
+                                                                                                        GUILayout.ExpandWidth(true),
+                                                                                                        GUILayout.MinWidth(ModScreenMinWidth),
+                                                                                                        GUILayout.MaxWidth(ModScreenMaxWidth),
+                                                                                                        GUILayout.ExpandHeight(true),
+                                                                                                        GUILayout.MinHeight(ModScreenMinHeight),
+                                                                                                        GUILayout.MaxHeight(ModScreenMaxHeight)))
             {
                 ScreenMenuBox();
                 if (!IsMinimized)
