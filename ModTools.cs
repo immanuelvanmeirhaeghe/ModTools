@@ -6,6 +6,13 @@ using UnityEngine;
 
 namespace ModTools
 {
+    public enum MessageType
+    {
+        Info,
+        Warning,
+        Error
+    }
+
     /// <summary>
     /// ModTools is a mod for Green Hell
     /// that gives the player the option to unlock tools, weapons and armor.
@@ -13,35 +20,43 @@ namespace ModTools
     /// </summary>
     public class ModTools : MonoBehaviour
     {
-        private static ModTools s_Instance;
+        private static ModTools Instance;
 
         private static readonly string ModName = nameof(ModTools);
+        private static readonly float ModScreenTotalWidth = 500f;
+        private static readonly float ModScreenTotalHeight = 150f;
+        private static readonly float ModScreenMinWidth = 50f;
+        private static readonly float ModScreenMinHeight = 30f;
+        private static readonly float ModScreenMaxHeight = 200f;
 
-        private bool ShowUI;
+        private static bool IsMinimized { get; set; } = false;
 
-        public static Rect ModToolsScreen = new Rect(Screen.width / 100f, Screen.height / 100f, 450f, 150f);
+        private bool ShowUI = false;
 
-        private static ItemsManager itemsManager;
+        public static Rect ModToolsScreen = new Rect(Screen.width / 8f, Screen.height / 8f, ModScreenTotalWidth, ModScreenTotalHeight);
 
-        private static HUDManager hUDManager;
+        private static ItemsManager LocalItemsManager;
+        private static HUDManager LocalHUDManager;
+        private static Player LocalPlayer;
 
-        private static Player player;
-
-        private static List<ItemInfo> m_UnlockedToolsItemInfos = new List<ItemInfo>();
+        private static List<ItemInfo> UnlockedToolsItemInfos = new List<ItemInfo>();
         public static bool HasUnlockedTools { get; private set; }
 
-        private static List<ItemInfo> m_UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+        private static List<ItemInfo> UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
         public static bool HasUnlockedWeapons { get; private set; }
         public static bool HasBlowgun { get; private set; }
 
-        private static List<ItemInfo> m_UnlockedArmorItemInfos = new List<ItemInfo>();
+        private static List<ItemInfo> UnlockedArmorItemInfos = new List<ItemInfo>();
         public static bool HasUnlockedArmor { get; private set; }
-        public bool UseOptionF8 { get; private set; }
 
         public bool IsModActiveForMultiplayer { get; private set; }
         public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
 
-        private static string HUDBigInfoMessage(string message) => $"<color=#{ColorUtility.ToHtmlStringRGBA(Color.red)}>System</color>\n{message}";
+        public static string AlreadyUnlockedInfo(string info) => $"All {info} were already unlocked!";
+        public static string AddedToInventoryMessage(int count, ItemInfo itemInfo) => $"Added {count} x {itemInfo.GetNameToDisplayLocalized()} to inventory.";
+        public static string PermissionChangedMessage(string permission) => $"Permission to use mods and cheats in multiplayer was {permission}";
+        public static string HUDBigInfoMessage(string message, MessageType messageType, Color? headcolor = null)
+            => $"<color=#{ (headcolor != null ? ColorUtility.ToHtmlStringRGBA(headcolor.Value) : ColorUtility.ToHtmlStringRGBA(Color.red))  }>{messageType}</color>\n{message}";
 
         public void Start()
         {
@@ -53,41 +68,44 @@ namespace ModTools
             IsModActiveForMultiplayer = optionValue;
             ShowHUDBigInfo(
                           (optionValue ?
-                            HUDBigInfoMessage($"<color=#{ColorUtility.ToHtmlStringRGBA(Color.green)}>Permission to use mods for multiplayer was granted!</color>")
-                            : HUDBigInfoMessage($"<color=#{ColorUtility.ToHtmlStringRGBA(Color.yellow)}>Permission to use mods for multiplayer was revoked!</color>")),
-                           $"{ModName} Info",
-                           HUDInfoLogTextureType.Count.ToString());
+                            HUDBigInfoMessage(PermissionChangedMessage($"granted"), MessageType.Info, Color.green)
+                            : HUDBigInfoMessage(PermissionChangedMessage($"revoked"), MessageType.Info, Color.yellow))
+                            );
         }
 
         public ModTools()
         {
             useGUILayout = true;
-            s_Instance = this;
+            Instance = this;
         }
 
         public static ModTools Get()
         {
-            return s_Instance;
+            return Instance;
         }
 
-        public void ShowHUDBigInfo(string text, string header, string textureName)
+        public void ShowHUDBigInfo(string text)
         {
-            HUDBigInfo obj = (HUDBigInfo)hUDManager.GetHUD(typeof(HUDBigInfo));
-            HUDBigInfoData data = new HUDBigInfoData
+            string header = $"{ModName} Info";
+            string textureName = HUDInfoLogTextureType.Count.ToString();
+
+            HUDBigInfo bigInfo = (HUDBigInfo)LocalHUDManager.GetHUD(typeof(HUDBigInfo));
+            HUDBigInfoData.s_Duration = 2f;
+            HUDBigInfoData bigInfoData = new HUDBigInfoData
             {
                 m_Header = header,
                 m_Text = text,
                 m_TextureName = textureName,
                 m_ShowTime = Time.time
             };
-            obj.AddInfo(data);
-            obj.Show(show: true);
+            bigInfo.AddInfo(bigInfoData);
+            bigInfo.Show(true);
         }
 
         public void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
         {
             Localization localization = GreenHellGame.Instance.GetLocalization();
-            ((HUDMessages)hUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
+            ((HUDMessages)LocalHUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
         }
 
         private void EnableCursor(bool blockPlayer = false)
@@ -96,15 +114,15 @@ namespace ModTools
 
             if (blockPlayer)
             {
-                player.BlockMoves();
-                player.BlockRotation();
-                player.BlockInspection();
+                LocalPlayer.BlockMoves();
+                LocalPlayer.BlockRotation();
+                LocalPlayer.BlockInspection();
             }
             else
             {
-                player.UnblockMoves();
-                player.UnblockRotation();
-                player.UnblockInspection();
+                LocalPlayer.UnblockMoves();
+                LocalPlayer.UnblockRotation();
+                LocalPlayer.UnblockInspection();
             }
         }
 
@@ -148,9 +166,9 @@ namespace ModTools
 
         private void InitData()
         {
-            itemsManager = ItemsManager.Get();
-            hUDManager = HUDManager.Get();
-            player = Player.Get();
+            LocalItemsManager = ItemsManager.Get();
+            LocalHUDManager = HUDManager.Get();
+            LocalPlayer = Player.Get();
         }
 
         private void InitSkinUI()
@@ -158,46 +176,83 @@ namespace ModTools
             GUI.skin = ModAPI.Interface.Skin;
         }
 
+        private void ScreenMenuBox()
+        {
+            if (GUI.Button(new Rect(ModToolsScreen.width - 40f, 0f, 20f, 20f), "-", GUI.skin.button))
+            {
+                CollapseWindow();
+            }
+
+            if (GUI.Button(new Rect(ModToolsScreen.width - 20f, 0f, 20f, 20f), "X", GUI.skin.button))
+            {
+                CloseWindow();
+            }
+        }
+
+        private void CollapseWindow()
+        {
+            if (!IsMinimized)
+            {
+                ModToolsScreen.Set(ModToolsScreen.x, Screen.height - ModScreenMinHeight, ModScreenMinWidth, ModScreenMinHeight);
+                IsMinimized = true;
+            }
+            else
+            {
+                ModToolsScreen.Set(ModToolsScreen.x, Screen.height / ModScreenMinHeight, ModScreenTotalWidth, ModScreenTotalHeight);
+                IsMinimized = false;
+            }
+            InitWindow();
+        }
+
         private void InitModToolsScreen(int windowID)
         {
-            using (var verticalScope = new GUILayout.VerticalScope(GUI.skin.box))
+            using (var modContentScope = new GUILayout.VerticalScope(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.MinHeight(ModScreenMinHeight), GUILayout.MaxHeight(ModScreenMaxHeight)))
             {
-                if (GUI.Button(new Rect(430f, 0f, 20f, 20f), "X", GUI.skin.button))
+                ScreenMenuBox();
+                if (!IsMinimized)
                 {
-                    CloseWindow();
-                }
-
-                using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
-                {
-                    GUILayout.Label("All fire-water-fishing tools", GUI.skin.label);
-                    if (GUILayout.Button("Unlock tools", GUI.skin.button, GUILayout.MinWidth(100f), GUILayout.MaxWidth(200f)))
-                    {
-                        OnClickUnlockToolsButton();
-                        CloseWindow();
-                    }
-                }
-
-                using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
-                {
-                    GUILayout.Label("All weapons and traps", GUI.skin.label);
-                    if (GUILayout.Button("Unlock weapons/traps", GUI.skin.button, GUILayout.MinWidth(100f), GUILayout.MaxWidth(200f)))
-                    {
-                        OnClickUnlockWeaponsButton();
-                        CloseWindow();
-                    }
-                }
-
-                using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
-                {
-                    GUILayout.Label("All types of armor", GUI.skin.label);
-                    if (GUILayout.Button("Unlock armor", GUI.skin.button, GUILayout.MinWidth(100f), GUILayout.MaxWidth(200f)))
-                    {
-                        OnClickUnlockArmorButton();
-                        CloseWindow();
-                    }
+                    UnlockToolsBox();
+                    UnlockWeaponsTrapsBox();
+                    UnlockArmorBox();
                 }
             }
             GUI.DragWindow(new Rect(0f, 0f, 10000f, 10000f));
+        }
+
+        private void UnlockArmorBox()
+        {
+            using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
+            {
+                GUILayout.Label("Click to unlock all armor blueprints: ", GUI.skin.label);
+                if (GUILayout.Button("Unlock armor", GUI.skin.button, GUILayout.MaxWidth(200f)))
+                {
+                    OnClickUnlockArmorButton();
+                }
+            }
+        }
+
+        private void UnlockWeaponsTrapsBox()
+        {
+            using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
+            {
+                GUILayout.Label("Click to unlock all weapon - and trap blueprints: ", GUI.skin.label);
+                if (GUILayout.Button("Unlock weapons/traps", GUI.skin.button, GUILayout.MaxWidth(200f)))
+                {
+                    OnClickUnlockWeaponsButton();
+                }
+            }
+        }
+
+        private void UnlockToolsBox()
+        {
+            using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
+            {
+                GUILayout.Label("Click to unlock al fire-water-fishing tool blueprints: ", GUI.skin.label);
+                if (GUILayout.Button("Unlock tools", GUI.skin.button,GUILayout.MaxWidth(200f)))
+                {
+                    OnClickUnlockToolsButton();
+                }
+            }
         }
 
         private void CloseWindow()
@@ -214,7 +269,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(OnClickUnlockToolsButton)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}:{nameof(OnClickUnlockToolsButton)}] throws exception:\n{exc.Message}");
             }
         }
 
@@ -223,12 +278,10 @@ namespace ModTools
             try
             {
                 UnlockAllWeapons();
-                //GetBlowgun();
-                //GetBlowpipeArrows(5);
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(OnClickUnlockWeaponsButton)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}:{nameof(OnClickUnlockWeaponsButton)}] throws exception:\n{exc.Message}");
             }
         }
 
@@ -240,45 +293,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(OnClickUnlockArmorButton)}] throws exception: {exc.Message}");
-            }
-        }
-
-        public void GetBlowgun()
-        {
-            try
-            {
-                itemsManager.UnlockItemInfo(ItemID.Bamboo_Blowpipe.ToString());
-                ItemInfo blowPipeItemInfo = itemsManager.GetInfo(ItemID.Bamboo_Blowpipe);
-                player.AddItemToInventory(blowPipeItemInfo.m_ID.ToString());
-                ShowHUDBigInfo($"Added 1 x {blowPipeItemInfo.GetNameToDisplayLocalized()} to inventory", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
-                HasBlowgun = true;
-            }
-            catch (Exception exc)
-            {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(GetBlowgun)}] throws exception: {exc.Message}");
-            }
-        }
-
-        public void GetMaxThreeBlowpipeArrow(int count = 1)
-        {
-            try
-            {
-                if (count > 3)
-                {
-                    count = 3;
-                }
-                itemsManager.UnlockItemInfo(ItemID.Blowpipe_Arrow.ToString());
-                ItemInfo blowPipeArrowItemInfo = itemsManager.GetInfo(ItemID.Blowpipe_Arrow);
-                for (int i = 0; i < count; i++)
-                {
-                    player.AddItemToInventory(blowPipeArrowItemInfo.m_ID.ToString());
-                }
-                ShowHUDBigInfo($"Added {count} x {blowPipeArrowItemInfo.GetNameToDisplayLocalized()} to inventory", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
-            }
-            catch (Exception exc)
-            {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(GetMaxThreeBlowpipeArrow)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}:{nameof(OnClickUnlockArmorButton)}] throws exception:\n{exc.Message}");
             }
         }
 
@@ -288,24 +303,24 @@ namespace ModTools
             {
                 if (!HasUnlockedArmor)
                 {
-                    m_UnlockedArmorItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsArmor()).ToList();
+                    UnlockedArmorItemInfos = LocalItemsManager.GetAllInfos().Values.Where(info => info.IsArmor()).ToList();
 
-                    foreach (ItemInfo unlockedArmorItemInfo in m_UnlockedArmorItemInfos)
+                    foreach (ItemInfo unlockedArmorItemInfo in UnlockedArmorItemInfos)
                     {
-                        itemsManager.UnlockItemInNotepad(unlockedArmorItemInfo.m_ID);
-                        itemsManager.UnlockItemInfo(unlockedArmorItemInfo.m_ID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(unlockedArmorItemInfo.m_ID);
+                        LocalItemsManager.UnlockItemInfo(unlockedArmorItemInfo.m_ID.ToString());
                         ShowHUDInfoLog(unlockedArmorItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
                     HasUnlockedArmor = true;
                 }
                 else
                 {
-                    ShowHUDBigInfo("All armor were already unlocked!", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+                    ShowHUDBigInfo(HUDBigInfoMessage(AlreadyUnlockedInfo("armor blueprints"), MessageType.Warning, Color.yellow));
                 }
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(UnlockAllArmor)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}:{nameof(UnlockAllArmor)}] throws exception:\n{exc.Message}");
             }
         }
 
@@ -315,24 +330,24 @@ namespace ModTools
             {
                 if (!HasUnlockedWeapons)
                 {
-                    m_UnlockedWeaponsTrapsItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsWeapon() || ItemInfo.IsTrap(info.m_ID)).ToList();
+                    UnlockedWeaponsTrapsItemInfos = LocalItemsManager.GetAllInfos().Values.Where(info => info.IsWeapon() || ItemInfo.IsTrap(info.m_ID)).ToList();
 
-                    foreach (ItemInfo unlockedWeaponTrapItemInfo in m_UnlockedWeaponsTrapsItemInfos)
+                    foreach (ItemInfo unlockedWeaponTrapItemInfo in UnlockedWeaponsTrapsItemInfos)
                     {
-                        itemsManager.UnlockItemInNotepad(unlockedWeaponTrapItemInfo.m_ID);
-                        itemsManager.UnlockItemInfo(unlockedWeaponTrapItemInfo.m_ID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(unlockedWeaponTrapItemInfo.m_ID);
+                        LocalItemsManager.UnlockItemInfo(unlockedWeaponTrapItemInfo.m_ID.ToString());
                         ShowHUDInfoLog(unlockedWeaponTrapItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
                     HasUnlockedWeapons = true;
                 }
                 else
                 {
-                    ShowHUDBigInfo("All weapons and traps were already unlocked!", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+                    ShowHUDBigInfo(HUDBigInfoMessage(AlreadyUnlockedInfo("weapon - and trap blueprints"), MessageType.Warning, Color.yellow));
                 }
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(UnlockAllWeapons)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}:{nameof(UnlockAllWeapons)}] throws exception:\n{exc.Message}");
             }
         }
 
@@ -342,179 +357,183 @@ namespace ModTools
             {
                 if (!HasUnlockedTools)
                 {
-                    m_UnlockedToolsItemInfos = itemsManager.GetAllInfos().Values.Where(info => info.IsTool() || info.IsTorch() || info.IsFishingRod()).ToList();
+                    UnlockedToolsItemInfos = LocalItemsManager.GetAllInfos().Values.Where(info => info.IsTool() || info.IsTorch() || info.IsFishingRod()).ToList();
 
                     UnlockFireTools();
                     UnlockFishingTools();
                     UnlockWaterTools();
 
-                    foreach (ItemInfo unlockedToolsItemInfo in m_UnlockedToolsItemInfos)
+                    foreach (ItemInfo unlockedToolsItemInfo in UnlockedToolsItemInfos)
                     {
-                        itemsManager.UnlockItemInfo(unlockedToolsItemInfo.m_ID.ToString());
-                        itemsManager.UnlockItemInNotepad(unlockedToolsItemInfo.m_ID);
+                        LocalItemsManager.UnlockItemInfo(unlockedToolsItemInfo.m_ID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(unlockedToolsItemInfo.m_ID);
                         ShowHUDInfoLog(unlockedToolsItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
                     }
                     HasUnlockedTools = true;
                 }
                 else
                 {
-                    ShowHUDBigInfo("All tools were already unlocked", "ModTools Info", HUDInfoLogTextureType.Count.ToString());
+                    ShowHUDBigInfo(HUDBigInfoMessage(AlreadyUnlockedInfo("tool blueprints"), MessageType.Warning, Color.yellow));
                 }
             }
             catch (Exception exc)
             {
-                ModAPI.Log.Write($"[{ModName}.{ModName}:{nameof(UnlockAllTools)}] throws exception: {exc.Message}");
+                ModAPI.Log.Write($"[{ModName}:{nameof(UnlockAllTools)}] throws exception:\n{exc.Message}");
             }
         }
 
         public void UnlockWaterTools()
         {
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Coconut_Bidon)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Coconut_Bidon)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Coconut_Bidon));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Coconut_Bidon));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Water_Filter)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Water_Filter)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Water_Filter));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Water_Filter));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Bamboo_Water_Filter)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Water_Filter)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Bamboo_Water_Filter));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Water_Filter));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Bamboo_Water_Collector)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Water_Collector)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Bamboo_Water_Collector));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Water_Collector));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Water_Collector)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Water_Collector)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Water_Collector));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Water_Collector));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.mud_mixer)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.mud_mixer)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.mud_mixer));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.mud_mixer));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.mud_water_collector)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.mud_water_collector)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.mud_water_collector));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.mud_water_collector));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.mud_shower)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.mud_shower)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.mud_shower));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.mud_shower));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Bamboo_Bowl)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Bowl)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Bamboo_Bowl));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Bowl));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Brazil_nut_Bowl)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Brazil_nut_Bowl)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Brazil_nut_Bowl));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Brazil_nut_Bowl));
             }
         }
 
         public void UnlockFishingTools()
         {
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Fishing_Rod_Bone)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Fishing_Rod_Bone)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Fishing_Rod_Bone));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Fishing_Rod_Bone));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Fish_Hook)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Fish_Hook)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Fish_Hook));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Fish_Hook));
             }
         }
 
         public void UnlockFireTools()
         {
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Small_Fire)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Small_Fire)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Small_Fire));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Small_Fire));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Fire)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Fire)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Fire));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Fire));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Stone_Ring)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stone_Ring)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Stone_Ring));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stone_Ring));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Campfire)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Campfire)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Campfire));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Campfire));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Hand_Drill_Board)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Hand_Drill_Board)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Hand_Drill_Board));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Hand_Drill_Board));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Hand_Drill_Stick)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Hand_Drill_Stick)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Hand_Drill_Stick));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Hand_Drill_Stick));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Fire_Bow)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Fire_Bow)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Fire_Bow));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Fire_Bow));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Fire_Board)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Fire_Board)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Fire_Board));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Fire_Board));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Tobacco_Torch)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Rubing_Wood)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Tobacco_Torch));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Rubing_Wood));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Dryer)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Tobacco_Torch)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Dryer));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Tobacco_Torch));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Bamboo_Dryer)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Dryer)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Bamboo_Dryer));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Dryer));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Smoker)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Dryer)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Smoker));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Dryer));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.Bamboo_Smoker)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Smoker)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.Bamboo_Smoker));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Smoker));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.mud_metal_furnace)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Smoker)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.mud_metal_furnace));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Smoker));
             }
 
-            if (!m_UnlockedToolsItemInfos.Contains(itemsManager.GetInfo(ItemID.mud_charcoal_furnace)))
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.mud_metal_furnace)))
             {
-                m_UnlockedToolsItemInfos.Add(itemsManager.GetInfo(ItemID.mud_charcoal_furnace));
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.mud_metal_furnace));
+            }
+
+            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.mud_charcoal_furnace)))
+            {
+                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.mud_charcoal_furnace));
             }
         }
-
     }
 }
