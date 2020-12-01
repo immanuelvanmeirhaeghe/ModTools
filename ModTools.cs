@@ -25,7 +25,7 @@ namespace ModTools
         private static readonly string ModName = nameof(ModTools);
         private static readonly float ModScreenTotalWidth = 500f;
         private static readonly float ModScreenTotalHeight = 150f;
-        private static readonly float ModScreenMinWidth = 50f;
+        private static readonly float ModScreenMinWidth = 450f;
         private static readonly float ModScreenMaxWidth = 550f;
         private static readonly float ModScreenMinHeight = 50f;
         private static readonly float ModScreenMaxHeight = 200f;
@@ -163,7 +163,18 @@ namespace ModTools
         private void InitWindow()
         {
             int wid = GetHashCode();
-            ModToolsScreen = GUILayout.Window(wid, ModToolsScreen, InitModToolsScreen, $"{ModName}", GUI.skin.window);
+            ModToolsScreen = GUILayout.Window(
+                                                                                    wid,
+                                                                                    ModToolsScreen,
+                                                                                    InitModToolsScreen,
+                                                                                    ModName,
+                                                                                    GUI.skin.window,
+                                                                                    GUILayout.ExpandWidth(true),
+                                                                                    GUILayout.MinWidth(ModScreenMinWidth),
+                                                                                    GUILayout.MaxWidth(ModScreenMaxWidth),
+                                                                                    GUILayout.ExpandHeight(true),
+                                                                                    GUILayout.MinHeight(ModScreenMinHeight),
+                                                                                    GUILayout.MaxHeight(ModScreenMaxHeight));
         }
 
         private void InitData()
@@ -195,14 +206,12 @@ namespace ModTools
         {
             if (!IsMinimized)
             {
-                ModScreenStartPositionX = ModToolsScreen.x;
-                ModScreenStartPositionY = ModToolsScreen.y;
-                ModToolsScreen.Set(ModToolsScreen.x, ModToolsScreen.y, ModScreenMinWidth, ModScreenMinHeight);
+                ModToolsScreen = new Rect(ModScreenStartPositionX, ModScreenStartPositionY, ModScreenTotalWidth, ModScreenMinHeight);
                 IsMinimized = true;
             }
             else
             {
-                ModToolsScreen.Set(ModScreenStartPositionX, ModScreenStartPositionY, ModScreenTotalWidth, ModScreenTotalHeight);
+                ModToolsScreen = new Rect(ModScreenStartPositionX, ModScreenStartPositionY, ModScreenTotalWidth, ModScreenTotalHeight);
                 IsMinimized = false;
             }
             InitWindow();
@@ -210,14 +219,10 @@ namespace ModTools
 
         private void InitModToolsScreen(int windowID)
         {
-            using (var modContentScope = new GUILayout.VerticalScope(
-                                                                                                        GUI.skin.box,
-                                                                                                        GUILayout.ExpandWidth(true),
-                                                                                                        GUILayout.MinWidth(ModScreenMinWidth),
-                                                                                                        GUILayout.MaxWidth(ModScreenMaxWidth),
-                                                                                                        GUILayout.ExpandHeight(true),
-                                                                                                        GUILayout.MinHeight(ModScreenMinHeight),
-                                                                                                        GUILayout.MaxHeight(ModScreenMaxHeight)))
+            ModScreenStartPositionX = ModToolsScreen.x;
+            ModScreenStartPositionY = ModToolsScreen.y;
+
+            using (var modContentScope = new GUILayout.VerticalScope(GUI.skin.box))
             {
                 ScreenMenuBox();
                 if (!IsMinimized)
@@ -259,7 +264,7 @@ namespace ModTools
             using (var horizontalScope = new GUILayout.HorizontalScope(GUI.skin.box))
             {
                 GUILayout.Label("Click to unlock al fire-water-fishing tool blueprints: ", GUI.skin.label);
-                if (GUILayout.Button("Unlock tools", GUI.skin.button,GUILayout.MaxWidth(200f)))
+                if (GUILayout.Button("Unlock tools", GUI.skin.button, GUILayout.MaxWidth(200f)))
                 {
                     OnClickUnlockToolsButton();
                 }
