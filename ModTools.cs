@@ -16,6 +16,7 @@ namespace ModTools
     /// </summary>
     public class ModTools : MonoBehaviour
     {
+        private const string LocalizedTextKey = "HUD_InfoLog_NewEntry";
         private static ModTools Instance;
 
         private static readonly string ModName = nameof(ModTools);
@@ -82,11 +83,11 @@ namespace ModTools
         public void Start()
         {
             ModManager.ModManager.onPermissionValueChanged += ModManager_onPermissionValueChanged;
-            ModKeybindingId = GetConfigurableKey(nameof(ModKeybindingId));
+            ShortcutKey = GetConfigurableKey(nameof(ShortcutKey));
         }
 
         private static readonly string RuntimeConfigurationFile = Path.Combine(Application.dataPath.Replace("GH_Data", "Mods"), "RuntimeConfiguration.xml");
-        private static KeyCode ModKeybindingId { get; set; } = KeyCode.Keypad8;
+        private static KeyCode ShortcutKey { get; set; } = KeyCode.Keypad9;
         private KeyCode GetConfigurableKey(string buttonId)
         {
             KeyCode configuredKeyCode = default;
@@ -182,7 +183,7 @@ namespace ModTools
 
         private void Update()
         {
-            if (Input.GetKeyDown(ModKeybindingId))
+            if (Input.GetKeyDown(ShortcutKey))
             {
                 if (!ShowUI)
                 {
@@ -295,7 +296,7 @@ namespace ModTools
             {
                 using (var optionsScope = new GUILayout.VerticalScope(GUI.skin.box))
                 {
-                    GUILayout.Label($"To toggle the mod main UI, press [{ModKeybindingId}]", GUI.skin.label);
+                    GUILayout.Label($"To toggle the mod main UI, press [{ShortcutKey}]", GUI.skin.label);
                     MultiplayerOptionBox();
                 }
             }
@@ -527,19 +528,33 @@ namespace ModTools
             {
                 if (!HasUnlockedTools)
                 {
-                    UnlockedToolsItemInfos = LocalItemsManager.GetAllInfos().Values.Where(info => info.IsTool() || info.IsTorch() || info.IsFishingRod()).ToList();
+                    UnlockedToolsItemInfos = LocalItemsManager?.GetAllInfos()?.Values?.Where(info => info.IsTool() || info.IsTorch() || info.IsFishingRod())?.ToList();
 
-                    UnlockFireTools();
-                    UnlockFishingTools();
-                    UnlockWaterTools();
-
-                    foreach (ItemInfo unlockedToolsItemInfo in UnlockedToolsItemInfos)
+                    if (UnlockedToolsItemInfos == null)
                     {
-                        LocalItemsManager.UnlockItemInfo(unlockedToolsItemInfo.m_ID.ToString());
-                        LocalItemsManager.UnlockItemInNotepad(unlockedToolsItemInfo.m_ID);
-                        ShowHUDInfoLog(unlockedToolsItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
+                        ModAPI.Log.Write("UnlockedToolsItemInfos is null!");
+                        ModAPI.Log.Write("LocalItemsManager == null returns " + (LocalItemsManager == null));                        
+                        ModAPI.Log.Write("LocalItemsManager?.GetAllInfos() returns");
+                        ModAPI.Log.Write(LocalItemsManager?.GetAllInfos());
+                        ModAPI.Log.Write("LocalItemsManager?.GetAllInfos()?.Values returns");
+                        ModAPI.Log.Write(LocalItemsManager?.GetAllInfos()?.Values);
+                        ShowHUDBigInfo(HUDBigInfoMessage("Fatal problem: Could not retrieve any tool blueprints. See logfile in game log folder for more info.", MessageType.Error, Color.red));
+                        HasUnlockedTools = false;
                     }
-                    HasUnlockedTools = true;
+                    else
+                    {
+                        UnlockFireTools();
+                        UnlockFishingTools();
+                        UnlockWaterTools();
+
+                        foreach (ItemInfo unlockedToolsItemInfo in UnlockedToolsItemInfos)
+                        {
+                            LocalItemsManager.UnlockItemInfo(unlockedToolsItemInfo.m_ID.ToString());
+                            LocalItemsManager.UnlockItemInNotepad(unlockedToolsItemInfo.m_ID);
+                            ShowHUDInfoLog(unlockedToolsItemInfo.m_ID.ToString(), LocalizedTextKey);
+                        }
+                        HasUnlockedTools = true;
+                    }
                 }
                 else
                 {
@@ -548,6 +563,7 @@ namespace ModTools
             }
             catch (Exception exc)
             {
+                HasUnlockedTools = false;
                 HandleException(exc, nameof(UnlockAllTools));
             }
         }
