@@ -1,10 +1,18 @@
 <Mod ID="ModTools">
-  <Compatible>1.8.1</Compatible>
+  <Compatible>Update #21</Compatible>
+  <Button Standard="NumPad9" ID="ShortcutKey">
+    <Name>
+      <EN>Press shortcut key</EN>
+    </Name>
+    <Description>
+      <EN> to open the main mod screen.</EN>
+    </Description>
+  </Button>
   <Name>
     <EN>ModTools</EN>
   </Name>
   <Description>
-    <EN>ModTools is a mod for Green Hell that gives the player the option to unlock tools, weapons and armor.</EN>
+    <EN>ModTools is a mod for Green Hell that allows a player to unlock all tool- armor- weapon- and trap blueprints. Press [NumPad9] (default) or the key configurable in ModAPI to open the main mod screen.</EN>
   </Description>
-  <Version>1.0.3.0</Version>
+  <Version>1.0.3.3</Version>
 </Mod>
