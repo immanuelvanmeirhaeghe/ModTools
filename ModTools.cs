@@ -530,14 +530,14 @@ namespace ModTools
                 {
                     UnlockedToolsItemInfos = LocalItemsManager?.GetAllInfos()?.Values?.Where(info => info.IsTool() || info.IsTorch() || info.IsFishingRod())?.ToList();
 
-                    if (UnlockedToolsItemInfos == null)
+                    if (UnlockedToolsItemInfos != null && UnlockedToolsItemInfos.Count == 0)
                     {
-                        ModAPI.Log.Write("UnlockedToolsItemInfos is null!");
-                        ModAPI.Log.Write("LocalItemsManager == null returns " + (LocalItemsManager == null));                        
-                        ModAPI.Log.Write("LocalItemsManager?.GetAllInfos() returns");
-                        ModAPI.Log.Write(LocalItemsManager?.GetAllInfos());
-                        ModAPI.Log.Write("LocalItemsManager?.GetAllInfos()?.Values returns");
-                        ModAPI.Log.Write(LocalItemsManager?.GetAllInfos()?.Values);
+                        ModAPI.Log.Write("UnlockedToolsItemInfos is empty!");
+                        ModAPI.Log.Write("Dictionary with all game item info: ");
+                        foreach (ItemInfo lockedItemInfo in LocalItemsManager?.GetAllInfos()?.Values)
+                        {
+                            ModAPI.Log.Write("ItemID: " + lockedItemInfo.m_ID.ToString());
+                        }                        
                         ShowHUDBigInfo(HUDBigInfoMessage("Fatal problem: Could not retrieve any tool blueprints. See logfile in game log folder for more info.", MessageType.Error, Color.red));
                         HasUnlockedTools = false;
                     }
