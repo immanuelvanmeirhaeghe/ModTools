@@ -44,20 +44,167 @@ namespace ModTools
         private static Player LocalPlayer;
         private static StylingManager LocalStylingManager;
 
-        private static List<ItemInfo> UnlockedToolsItemInfos = new List<ItemInfo>();
         public static bool HasUnlockedTools { get; private set; }
-
-        private static List<ItemInfo> UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
         public static bool HasUnlockedWeapons { get; private set; }
 
-        private static List<ItemInfo> UnlockedArmorItemInfos = new List<ItemInfo>();
         public static bool HasUnlockedArmor { get; private set; }
 
-        public static List<ItemID> WaterToolIDs = new List<ItemID>();
-        public static List<ItemID> FireToolIDs = new List<ItemID>();
-        public static List<ItemID> FishingToolIDs = new List<ItemID>();
-
-
+        public static List<ItemID> WaterToolIDs = new List<ItemID>
+        {
+            ItemID.WaterSource,
+            ItemID.Water_Collector,
+            ItemID.Water_Container,
+            ItemID.Water_Filter,
+            ItemID.mud_water_collector,
+            ItemID.Bamboo_Water_Collector,
+            ItemID.Bamboo_Water_Filter,
+            ItemID.Bidon,
+            ItemID.Coconut_Bidon,
+            ItemID.Rain_Collector,
+            ItemID.Bamboo_Bowl,
+            ItemID.Brazil_nut_Bowl,
+            ItemID.clay_bowl_big,
+            ItemID.clay_bowl_big_fresh,
+            ItemID.clay_bidon_fresh,
+            ItemID.clay_bidon,
+            ItemID.clay_bidon_unfinished,
+            ItemID.clay_bowl_small,
+            ItemID.clay_bowl_small_fresh,
+            ItemID.Coconut_Bowl,
+            ItemID.Campfire_RackBowl
+        };
+        public static List<ItemID> FireToolIDs = new List<ItemID>
+        {
+            ItemID.Fire,
+            ItemID.fire_board_stand,
+            ItemID.Fire_Board,
+            ItemID.Fire_Bow,
+            ItemID.Campfire_fireside,
+            ItemID.Cremation_fire,
+            ItemID.mud_bamboo_wall_fireside,
+            ItemID.mud_wall_fireside,
+            ItemID.Eternal_Fire,
+            ItemID.Small_Fire,
+            ItemID.Campfire,
+            ItemID.Campfire_ash,
+            ItemID.Campfire_Rack,
+            ItemID.campfire_totem,
+            ItemID.pve_village_campfire,
+            ItemID.challenge_fire,
+            ItemID.PoisonedWater_fire,
+            ItemID.Fire
+        };
+        public static List<ItemID> FishingToolIDs = new List<ItemID>
+        {
+            ItemID.Fishing_Rod,
+            ItemID.Fishing_Rod_Bone,
+            ItemID.Fish_Bone,
+            ItemID.Fish_Hook,
+            ItemID.Fish_Rod_Trap ,
+            ItemID.Bamboo_Fishing_Rod,
+            ItemID.Bamboo_Fishing_Rod_Bone,
+            ItemID.Big_Stick_Fish_Trap,
+            ItemID.Stick_Fish_Trap,
+            ItemID.painting_small_Fish
+        };
+        public static List<ItemID> WeaponItemIDs = new List<ItemID>
+        {
+            ItemID.Stone_Blade,
+            ItemID.Obsidian_Blade,
+            ItemID.Obsidian_Bone_Blade,
+            ItemID.Stick_Blade,
+            ItemID.Stick_Blade_ArenaTribe,
+            ItemID.metal_blade,
+            ItemID.metal_blade_weapon,
+            ItemID.Bone_Knife,
+            ItemID.Blade_Axe,
+            ItemID.Axe,
+            ItemID.Axe_professional,
+            ItemID.metal_axe,
+            ItemID.metal_axe_blade,
+            ItemID.metal_pickaxe,
+            ItemID.pickaxe,
+            ItemID.Stick,
+            ItemID.Log,
+            ItemID.Long_Stick,
+            ItemID.Liane,
+            ItemID.Liane_ToHoldHarvest,
+            ItemID.Stone,
+            ItemID.Stone_Axe,
+            ItemID.Stone_Axe_2H,
+            ItemID.Stone_Axe_ArenaHunting,
+            ItemID.Big_Stone,
+            ItemID.Obsidian_Stone,
+            ItemID.Tribe_Axe,
+            ItemID.Weak_Torch,
+            ItemID.Tobacco_Torch,
+            ItemID.Torch
+        };
+        public static List<ItemID> SpearItemIDs = new List<ItemID>
+        {
+            ItemID.Spear_ArenaFarmer,
+            ItemID.metal_spear,
+            ItemID.Bamboo_Spear,
+            ItemID.Bone_Spear,
+            ItemID.Four_Pronged_Bamboo_Spear ,
+            ItemID.Four_Pronged_Spear,
+            ItemID.Obsidian_Spear,
+            ItemID.Stone_Spear,
+            ItemID.Stone_Spear_ArenaHunting,
+            ItemID.Tribe_Spear,
+            ItemID.Tribe_Spear_ArenaTribe,
+            ItemID.Weak_Spear
+        };
+        public static List<ItemID> BowItemIDs = new List<ItemID>
+        {
+            ItemID.Bow,
+            ItemID.Bow_ArenaHunting,
+            ItemID.Bamboo_Bow,
+            ItemID.Tribe_Bow
+        };
+        public static List<ItemID> ArrowIDs = new List<ItemID>
+        {
+            ItemID.Arrow,
+            ItemID.Arrow_ArenaHunting,
+            ItemID.Metal_arrow,
+            ItemID.metal_arrowhead,
+            ItemID.Tribe_Arrow,
+            ItemID.Blowpipe_Arrow,
+            ItemID.Blowpipe_Arrows_unfinished
+        };
+        public static List<ItemID> BlowpipeIDs = new List<ItemID>
+        {
+            ItemID.Bamboo_Blowpipe,
+            ItemID.Bamboo_Log,
+            ItemID.Bamboo_Long_Stick,
+            ItemID.Bamboo_Stick
+        };       
+        public static List<ItemID> TrapItemIDs = new List<ItemID>
+        {
+            ItemID.mud_from_water,
+            ItemID.shrimp_trap,
+            ItemID.tribe_spike_trap,
+            ItemID.Big_Stick_Fish_Trap,
+            ItemID.Cage_Trap,
+            ItemID.Fish_Rod_Trap ,
+            ItemID.Human_Killer_Trap,
+            ItemID.Killer_Trap,
+            ItemID.Snare_Trap,
+            ItemID.Stick_Fish_Trap,
+            ItemID.Stone_Trap,
+            ItemID.Tribe_Bow_Trap
+        };
+        public static List<ItemID> ArmorItemIDs = new List<ItemID>
+        {
+            ItemID.armadillo_armor,
+            ItemID.bamboo_armor,
+            ItemID.bone_armor,
+            ItemID.leaf_armor,
+            ItemID.metal_armor ,
+            ItemID.metal_armor_part,
+            ItemID.stick_armor,
+            ItemID.Bone
+        };
         public bool IsModActiveForMultiplayer { get; private set; }
         public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
 
@@ -585,10 +732,11 @@ namespace ModTools
             {
                 if (!HasUnlockedArmor)
                 {
-                    foreach (var armorItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Armor))
+                    foreach (var armorItemID in ArmorItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(armorItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(armorItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(armorItemID);
+                        ItemsManager.Get().UnlockItemInfo(armorItemID.ToString());
+                        ShowHUDInfoLog(armorItemID.ToString(), LocalizedTextKey);
                     }
                     HasUnlockedArmor = true;                    
                 }
@@ -612,15 +760,23 @@ namespace ModTools
             {
                 if (!HasUnlockedTools)
                 {
-                    foreach (var toolItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.ItemTool))
+                    foreach (var watertoolItemID in WaterToolIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(toolItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(toolItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(watertoolItemID);
+                        ItemsManager.Get().UnlockItemInfo(watertoolItemID.ToString());
+                        ShowHUDInfoLog(watertoolItemID.ToString(), LocalizedTextKey);
+                    }                    
+                    foreach (var firetoolItemID in FireToolIDs)
+                    {
+                        ItemsManager.Get().UnlockItemInNotepad(firetoolItemID);
+                        ItemsManager.Get().UnlockItemInfo(firetoolItemID.ToString());
+                        ShowHUDInfoLog(firetoolItemID.ToString(), LocalizedTextKey);
                     }
-                    foreach (var torchItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Torch))
+                    foreach (var fishingtoolItemID in FishingToolIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(torchItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(torchItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(fishingtoolItemID);
+                        ItemsManager.Get().UnlockItemInfo(fishingtoolItemID.ToString());
+                        ShowHUDInfoLog(fishingtoolItemID.ToString(), LocalizedTextKey);
                     }
                     HasUnlockedTools = true;
                 }
@@ -644,40 +800,41 @@ namespace ModTools
             {
                 if (!HasUnlockedWeapons) 
                 {
-                    foreach (var weaponItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Weapon))
+                    foreach (var weaponItemID in WeaponItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(weaponItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(weaponItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(weaponItemID);
+                        ItemsManager.Get().UnlockItemInfo(weaponItemID.ToString());
+                        ShowHUDInfoLog(weaponItemID.ToString(), LocalizedTextKey);
                     }
-                    foreach (var spearItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Spear))
+                    foreach (var spearItemID in SpearItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(spearItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(spearItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(spearItemID);
+                        ItemsManager.Get().UnlockItemInfo(spearItemID.ToString());
+                        ShowHUDInfoLog(spearItemID.ToString(), LocalizedTextKey);
                     }
-                    foreach (var bowItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Bow))
+                    foreach (var bowItemID in BowItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(bowItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(bowItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(bowItemID);
+                        ItemsManager.Get().UnlockItemInfo(bowItemID.ToString());
+                        ShowHUDInfoLog(bowItemID.ToString(), LocalizedTextKey);
                     }
-                    foreach (var arrowItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Arrow))
+                    foreach (var arrowItemID in ArrowIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(arrowItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(arrowItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(arrowItemID);
+                        ItemsManager.Get().UnlockItemInfo(arrowItemID.ToString());
+                        ShowHUDInfoLog(arrowItemID.ToString(), LocalizedTextKey);
                     }
-                    foreach (var blowpipeItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Blowpipe))
+                    foreach (var blowpipeItemID in BlowpipeIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(blowpipeItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(blowpipeItemInfo.m_ID.ToString());
-                    }
-                    foreach (var blowpipeArrowItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.BlowpipeArrow))
+                        ItemsManager.Get().UnlockItemInNotepad(blowpipeItemID);
+                        ItemsManager.Get().UnlockItemInfo(blowpipeItemID.ToString());
+                        ShowHUDInfoLog(blowpipeItemID.ToString(), LocalizedTextKey);
+                    }                   
+                    foreach (var trapItemID in TrapItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(blowpipeArrowItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(blowpipeArrowItemInfo.m_ID.ToString());
-                    }
-                    foreach (var trapItemInfo in ItemsManager.Get().GetAllInfosOfType(ItemType.Trap))
-                    {
-                        ItemsManager.Get().UnlockItemInNotepad(trapItemInfo.m_ID);
-                        ItemsManager.Get().UnlockItemInfo(trapItemInfo.m_ID.ToString());
+                        ItemsManager.Get().UnlockItemInNotepad(trapItemID);
+                        ItemsManager.Get().UnlockItemInfo(trapItemID.ToString());
+                        ShowHUDInfoLog(trapItemID.ToString(), LocalizedTextKey);
                     }
                     HasUnlockedWeapons = true;              
                 }
