@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ModTools.Managers;
+using UnityEngine;
 
 namespace ModTools
 {
@@ -8,6 +9,7 @@ namespace ModTools
         {
             base.Start();
             new GameObject($"__{nameof(ModTools)}__").AddComponent<ModTools>();
+            new GameObject($"__{nameof(StylingManager)}__").AddComponent<StylingManager>();
         }
     }
 }

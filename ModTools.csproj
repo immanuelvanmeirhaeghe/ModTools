@@ -349,6 +349,7 @@
   <ItemGroup>
     <Compile Include="Extensions\PlayerExtended.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Managers\StylingManager.cs" />
     <Compile Include="ModTools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
