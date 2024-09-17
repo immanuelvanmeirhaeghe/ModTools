@@ -476,7 +476,10 @@ namespace ModTools
                 {
                     UnlockedArmorItemInfos = new List<ItemInfo>();
                 }
-
+                if (LocalItemsManager == null)
+                {
+                    LocalItemsManager = ItemsManager.Get();
+                }
                 if (!HasUnlockedArmor)
                 {
                     UnlockArmors();
@@ -638,7 +641,10 @@ namespace ModTools
                 {
                     UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
                 }
-
+                if (LocalItemsManager == null)
+                {
+                    LocalItemsManager = ItemsManager.Get();
+                }
                 if (!HasUnlockedWeapons)
                 {
                     UnlockTorches();
@@ -988,7 +994,10 @@ namespace ModTools
                 {
                     UnlockedToolsItemInfos = new List<ItemInfo>();
                 }
-
+                if (LocalItemsManager == null)
+                {
+                    LocalItemsManager = ItemsManager.Get();
+                }
                 if (!HasUnlockedTools)
                 {
                     UnlockFireTools();
