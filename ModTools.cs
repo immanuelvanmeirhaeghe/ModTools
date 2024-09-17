@@ -141,9 +141,9 @@ namespace ModTools
 
         private void HandleException(Exception exc, string methodName)
         {
-            string info = $"[{ModName}:{methodName}] throws exception:\n{exc.Message}";
+            string info = $"[{ModName}:{methodName}] throws exception:\n{exc.Message} \nat {exc.StackTrace}";
             ModAPI.Log.Write(info);
-            ShowHUDBigInfo(HUDBigInfoMessage(info, MessageType.Error, Color.red));
+            ShowHUDBigInfo(HUDBigInfoMessage(exc.Message, MessageType.Error, Color.red));
         }
 
         public ModTools()
@@ -472,6 +472,11 @@ namespace ModTools
         {
             try
             {
+                if (UnlockedArmorItemInfos == null)
+                {
+                    UnlockedArmorItemInfos = new List<ItemInfo>();
+                }
+
                 if (!HasUnlockedArmor)
                 {
                     UnlockArmors();
@@ -629,6 +634,11 @@ namespace ModTools
         {
             try
             {
+                if (UnlockedWeaponsTrapsItemInfos == null)
+                {
+                    UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+                }
+
                 if (!HasUnlockedWeapons)
                 {
                     UnlockTorches();
@@ -974,6 +984,11 @@ namespace ModTools
         {
             try
             {
+                if (UnlockedToolsItemInfos == null)
+                {
+                    UnlockedToolsItemInfos = new List<ItemInfo>();
+                }
+
                 if (!HasUnlockedTools)
                 {
                     UnlockFireTools();
