@@ -62,7 +62,7 @@ namespace ModTools
         public static string HUDBigInfoMessage(string message, MessageType messageType, Color? headcolor = null)
             => $"<color=#{ (headcolor != null ? ColorUtility.ToHtmlStringRGBA(headcolor.Value) : ColorUtility.ToHtmlStringRGBA(Color.red))  }>{messageType}</color>\n{message}";
 
-        public void ShowHUDBigInfo(string text)
+        private static void ShowHUDBigInfo(string text)
         {
             string header = $"{ModName} Info";
             string textureName = HUDInfoLogTextureType.Count.ToString();
@@ -139,9 +139,9 @@ namespace ModTools
                             );
         }
 
-        private void HandleException(Exception exc, string methodName)
+        private static void HandleException(Exception exc, string methodName)
         {
-            string info = $"[{ModName}:{methodName}] throws exception:\n{exc.Message} \nat {exc.StackTrace}";
+            string info = $"[{ModName}:{methodName}] throws exception:\n{exc.Message} \n{exc.StackTrace} \n{exc.InnerException?.Message}";
             ModAPI.Log.Write(info);
             ShowHUDBigInfo(HUDBigInfoMessage(exc.Message, MessageType.Error, Color.red));
         }
@@ -157,7 +157,7 @@ namespace ModTools
             return Instance;
         }
 
-        public void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
+        private static void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
         {
             Localization localization = GreenHellGame.Instance.GetLocalization();
             ((HUDMessages)LocalHUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
@@ -468,16 +468,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockAllArmor()
+        private static void UnlockAllArmor()
         {
             try
             {
                 if (UnlockedArmorItemInfos == null)
                 {
+                    ModAPI.Log.Write("UnlockedArmorItemInfos is null! Setting value to new List ItemInfo");
                     UnlockedArmorItemInfos = new List<ItemInfo>();
                 }
                 if (LocalItemsManager == null)
                 {
+                    ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
                     LocalItemsManager = ItemsManager.Get();
                 }
                 if (!HasUnlockedArmor)
@@ -514,8 +516,19 @@ namespace ModTools
             }
         }
 
-        public void UnlockArmors()
+        private static void UnlockArmors()
         {
+            if (UnlockedArmorItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedArmorItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedArmorItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
+
             if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.armadillo_armor)))
             {
                 UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.armadillo_armor));
@@ -552,8 +565,18 @@ namespace ModTools
             }            
         }
 
-        public void UnlockArmorStands()
+        private static void UnlockArmorStands()
         {
+            if (UnlockedArmorItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedArmorItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedArmorItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
             if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.wooden_armor_stand)))
             {
                 UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.wooden_armor_stand));
@@ -565,8 +588,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockArmorForms()
+        private static void UnlockArmorForms()
         {
+            if (UnlockedArmorItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedArmorItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedArmorItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
             if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form)))
             {
                 UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form));
@@ -633,16 +666,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockAllWeapons()
+        private static void UnlockAllWeapons()
         {
             try
             {
                 if (UnlockedWeaponsTrapsItemInfos == null)
                 {
+                    ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
                     UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
                 }
                 if (LocalItemsManager == null)
                 {
+                    ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
                     LocalItemsManager = ItemsManager.Get();
                 }
                 if (!HasUnlockedWeapons)
@@ -682,8 +717,19 @@ namespace ModTools
             }
         }
 
-        public void UnlockBowsAndArrows()
+        private static void UnlockBowsAndArrows()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
+
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bow)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bow));
@@ -730,8 +776,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockTorches()
+        private static void UnlockTorches()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Weak_Torch)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Weak_Torch));
@@ -748,8 +804,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockBladesAndKnives()
+        private static void UnlockBladesAndKnives()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Obsidian_Blade)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Obsidian_Blade));
@@ -781,8 +847,19 @@ namespace ModTools
             }
         }
 
-        public void UnlockAxes()
+        private static void UnlockAxes()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
+
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Axe)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Axe));
@@ -834,8 +911,19 @@ namespace ModTools
             }
         }
 
-        public void UnlockSpears()
+        private static void UnlockSpears()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
+
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Spear)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Spear));
@@ -882,8 +970,19 @@ namespace ModTools
             }
         }
 
-        public void UnlockTraps()
+        private static void UnlockTraps()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
+
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.shrimp_trap)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.shrimp_trap));
@@ -940,8 +1039,19 @@ namespace ModTools
             }
         }
 
-        public void UnlockWeaponStands()
+        private static void UnlockWeaponStands()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
+
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.bamboo_arrow_stand)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.bamboo_arrow_stand));
@@ -953,8 +1063,19 @@ namespace ModTools
             }
         }
 
-        public void UnlockWeaponForms()
+        private static void UnlockWeaponForms()
         {
+            if (UnlockedWeaponsTrapsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedWeaponsTrapsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
+
             if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_arrow)))
             {
                 UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_arrow));
@@ -986,16 +1107,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockAllTools()
+        private static void UnlockAllTools()
         {
             try
             {
                 if (UnlockedToolsItemInfos == null)
                 {
+                    ModAPI.Log.Write("UnlockedToolsItemInfos is null! Setting value to new List ItemInfo");
                     UnlockedToolsItemInfos = new List<ItemInfo>();
                 }
                 if (LocalItemsManager == null)
                 {
+                    ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
                     LocalItemsManager = ItemsManager.Get();
                 }
                 if (!HasUnlockedTools)
@@ -1005,7 +1128,7 @@ namespace ModTools
                     UnlockWaterTools();
                     if (UnlockedToolsItemInfos != null && UnlockedToolsItemInfos.Count == 0)
                     {
-                        ModAPI.Log.Write("UnlockedToolsItemInfos is empty!");                       
+                        ModAPI.Log.Write("UnlockedToolsItemInfos is empty!");
                         ShowHUDBigInfo(HUDBigInfoMessage("Fatal problem: Could not retrieve any tool blueprints. See logfile in game log folder for more info.", MessageType.Error, Color.red));
                         HasUnlockedTools = false;
                     }
@@ -1032,8 +1155,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockWaterTools()
+        private static void UnlockWaterTools()
         {
+            if (UnlockedToolsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedToolsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedToolsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
             if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Coconut_Bidon)))
             {
                 UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Coconut_Bidon));
@@ -1095,8 +1228,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockFishingTools()
+        private static void UnlockFishingTools()
         {
+            if (UnlockedToolsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedToolsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedToolsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
             if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone)))
             {
                 UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone));
@@ -1128,8 +1271,18 @@ namespace ModTools
             }
         }
 
-        public void UnlockFireTools()
+        private static void UnlockFireTools()
         {
+            if (UnlockedToolsItemInfos == null)
+            {
+                ModAPI.Log.Write("UnlockedToolsItemInfos is null! Setting value to new List ItemInfo");
+                UnlockedToolsItemInfos = new List<ItemInfo>();
+            }
+            if (LocalItemsManager == null)
+            {
+                ModAPI.Log.Write("LocalItemsManager is null! Setting value to ItemsManager.Get");
+                LocalItemsManager = ItemsManager.Get();
+            }
             if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Campfire_fireside)))
             {
                 UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Campfire_fireside));
