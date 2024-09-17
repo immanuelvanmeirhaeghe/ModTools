@@ -23,9 +23,9 @@ namespace ModTools
 
         private static readonly string ModName = nameof(ModTools);
 
-        private static float ModToolsScreenTotalWidth { get; set; } = 500f;
-        private static float ModToolsScreenTotalHeight { get; set; } = 150f;
-        private static float ModToolsScreenMinWidth { get; set; } = 500f;
+        private static float ModToolsScreenTotalWidth { get; set; } = 700f;
+        private static float ModToolsScreenTotalHeight { get; set; } = 350f;
+        private static float ModToolsScreenMinWidth { get; set; } = 700f;
         private static float ModToolsScreenMaxWidth { get; set; } = Screen.width;
         private static float ModToolsScreenMinHeight { get; set; } = 50f;
         private static float ModToolsScreenMaxHeight { get; set; } = Screen.height;
