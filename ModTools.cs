@@ -474,15 +474,25 @@ namespace ModTools
             {
                 if (!HasUnlockedArmor)
                 {
-                    UnlockedArmorItemInfos = LocalItemsManager.GetAllInfos().Values.Where(info => info.IsArmor()).ToList();
-
-                    foreach (ItemInfo unlockedArmorItemInfo in UnlockedArmorItemInfos)
+                    UnlockArmors();
+                    UnlockArmorStands();
+                    UnlockArmorForms();
+                    if (UnlockedArmorItemInfos != null && UnlockedArmorItemInfos.Count == 0)
                     {
-                        LocalItemsManager.UnlockItemInNotepad(unlockedArmorItemInfo.m_ID);
-                        LocalItemsManager.UnlockItemInfo(unlockedArmorItemInfo.m_ID.ToString());
-                        ShowHUDInfoLog(unlockedArmorItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
+                        ModAPI.Log.Write("UnlockedArmorItemInfos is empty!");
+                        ShowHUDBigInfo(HUDBigInfoMessage("Fatal problem: Could not retrieve any armor blueprints. See logfile in game log folder for more info.", MessageType.Error, Color.red));
+                        HasUnlockedArmor = false;
                     }
-                    HasUnlockedArmor = true;
+                    else
+                    {
+                        foreach (ItemInfo unlockedArmorItemInfo in UnlockedArmorItemInfos)
+                        {
+                            LocalItemsManager.UnlockItemInfo(unlockedArmorItemInfo.m_ID.ToString());
+                            LocalItemsManager.UnlockItemInNotepad(unlockedArmorItemInfo.m_ID);
+                            ShowHUDInfoLog(unlockedArmorItemInfo.m_ID.ToString(), LocalizedTextKey);
+                        }
+                        HasUnlockedArmor = true;
+                    }
                 }
                 else
                 {
@@ -491,7 +501,127 @@ namespace ModTools
             }
             catch (Exception exc)
             {
+                HasUnlockedArmor = false;
                 HandleException(exc, nameof(UnlockAllArmor));
+            }
+        }
+
+        public void UnlockArmors()
+        {
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.armadillo_armor)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.armadillo_armor));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.bamboo_armor)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.bamboo_armor));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.bone_armor)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.bone_armor));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.leaf_armor)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.leaf_armor));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_armor)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_armor));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_armor_part)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_armor_part));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.stick_armor)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.stick_armor));
+            }            
+        }
+
+        public void UnlockArmorStands()
+        {
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.wooden_armor_stand)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.wooden_armor_stand));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.bamboo_armor_stand)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.bamboo_armor_stand));
+            }
+        }
+
+        public void UnlockArmorForms()
+        {
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_baked)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_baked));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_bamboo)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_bamboo));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_bamboo_baked)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_bamboo_baked));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_bone)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_bone));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_bone_baked)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_bone_baked));
+            }
+
+            if(!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_metal)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_metal));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_metal_baked)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_metal_baked));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_metal_part)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_metal_part));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_metal_part_baked)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_metal_part_baked));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_stick)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_stick));
+            }
+
+            if (!UnlockedArmorItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_armor_stick_baked)))
+            {
+                UnlockedArmorItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_armor_stick_baked));
             }
         }
 
@@ -501,15 +631,28 @@ namespace ModTools
             {
                 if (!HasUnlockedWeapons)
                 {
-                    UnlockedWeaponsTrapsItemInfos = LocalItemsManager.GetAllInfos().Values.Where(info => info.IsWeapon() || ItemInfo.IsTrap(info.m_ID)).ToList();
-
-                    foreach (ItemInfo unlockedWeaponTrapItemInfo in UnlockedWeaponsTrapsItemInfos)
+                    UnlockTorches();
+                    UnlockSpears();
+                    UnlockAxes();
+                    UnlockBladesAndKnives();
+                    UnlockBowsAndArrows();
+                    UnlockTraps();
+                    if (UnlockedWeaponsTrapsItemInfos != null && UnlockedWeaponsTrapsItemInfos.Count == 0)
                     {
-                        LocalItemsManager.UnlockItemInNotepad(unlockedWeaponTrapItemInfo.m_ID);
-                        LocalItemsManager.UnlockItemInfo(unlockedWeaponTrapItemInfo.m_ID.ToString());
-                        ShowHUDInfoLog(unlockedWeaponTrapItemInfo.m_ID.ToString(), "HUD_InfoLog_NewEntry");
+                        ModAPI.Log.Write("UnlockedWeaponsTrapsItemInfos is empty!");
+                        ShowHUDBigInfo(HUDBigInfoMessage("Fatal problem: Could not retrieve any weapon - or trap blueprints. See logfile in game log folder for more info.", MessageType.Error, Color.red));
+                        HasUnlockedWeapons = false;
                     }
-                    HasUnlockedWeapons = true;
+                    else
+                    {
+                        foreach (ItemInfo unlockedWeaponTrapItemInfo in UnlockedWeaponsTrapsItemInfos)
+                        {
+                            LocalItemsManager.UnlockItemInNotepad(unlockedWeaponTrapItemInfo.m_ID);
+                            LocalItemsManager.UnlockItemInfo(unlockedWeaponTrapItemInfo.m_ID.ToString());
+                            ShowHUDInfoLog(unlockedWeaponTrapItemInfo.m_ID.ToString(), LocalizedTextKey);
+                        }
+                        HasUnlockedWeapons = true;
+                    }
                 }
                 else
                 {
@@ -518,7 +661,312 @@ namespace ModTools
             }
             catch (Exception exc)
             {
+                HasUnlockedWeapons |= false;
                 HandleException(exc, nameof(UnlockAllWeapons));
+            }
+        }
+
+        public void UnlockBowsAndArrows()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bow));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Bow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Bow));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Tribe_Bow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Tribe_Bow));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Blowpipe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Blowpipe));
+            }
+            
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Arrow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Arrow));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Metal_arrow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Metal_arrow));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_arrowhead)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_arrowhead));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Blowpipe_Arrow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Blowpipe_Arrow));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Tribe_Arrow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Tribe_Arrow));
+            }
+        }
+
+        public void UnlockTorches()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Weak_Torch)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Weak_Torch));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Torch)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Torch));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Tobacco_Torch)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Tobacco_Torch));
+            }
+        }
+
+        public void UnlockBladesAndKnives()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Obsidian_Blade)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Obsidian_Blade));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stone_Blade)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stone_Blade));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bone_Knife)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bone_Knife));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stick_Blade)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stick_Blade));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_blade)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_blade));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Obsidian_Bone_Blade)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Obsidian_Bone_Blade));
+            }
+        }
+
+        public void UnlockAxes()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Axe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Axe));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Axe_professional)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Axe_professional));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stone_Axe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stone_Axe));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_axe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_axe));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Blade_Axe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Blade_Axe));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_axe_blade)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_axe_blade));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bone_Axe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bone_Axe));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stone_Axe_2H)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stone_Axe_2H));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Tribe_Axe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Tribe_Axe));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_pickaxe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_pickaxe));
+            }
+        }
+
+        public void UnlockSpears()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.metal_spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.metal_spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bone_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bone_Spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Four_Pronged_Bamboo_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Four_Pronged_Bamboo_Spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Four_Pronged_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Four_Pronged_Spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Obsidian_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Obsidian_Spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stone_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stone_Spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Tribe_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Tribe_Spear));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Weak_Spear)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Weak_Spear));
+            }
+        }
+
+        public void UnlockTraps()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.shrimp_trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.shrimp_trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.tribe_spike_trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.tribe_spike_trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Big_Stick_Fish_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Big_Stick_Fish_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Cage_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Cage_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Fish_Rod_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Fish_Rod_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Human_Killer_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Human_Killer_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Killer_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Killer_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Snare_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Snare_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stick_Fish_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stick_Fish_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stone_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stone_Trap));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Tribe_Bow_Trap)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Tribe_Bow_Trap));
+            }
+        }
+
+        public void UnlockWeaponStands()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.bamboo_arrow_stand)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.bamboo_arrow_stand));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.wooden_arrow_stand)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.wooden_arrow_stand));
+            }
+        }
+
+        public void UnlockWeaponForms()
+        {
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_arrow)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_arrow));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_arrow_baked)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_arrow_baked));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_axe)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_axe));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_axe_baked)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_axe_baked));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_blade)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_blade));
+            }
+
+            if (!UnlockedWeaponsTrapsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.form_blade_baked)))
+            {
+                UnlockedWeaponsTrapsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.form_blade_baked));
             }
         }
 
@@ -528,25 +976,17 @@ namespace ModTools
             {
                 if (!HasUnlockedTools)
                 {
-                    UnlockedToolsItemInfos = LocalItemsManager?.GetAllInfos()?.Values?.Where(info => info.IsTool() || info.IsTorch() || info.IsFishingRod())?.ToList();
-
+                    UnlockFireTools();
+                    UnlockFishingTools();
+                    UnlockWaterTools();
                     if (UnlockedToolsItemInfos != null && UnlockedToolsItemInfos.Count == 0)
                     {
-                        ModAPI.Log.Write("UnlockedToolsItemInfos is empty!");
-                        ModAPI.Log.Write("Dictionary with all game item info: ");
-                        foreach (ItemInfo lockedItemInfo in LocalItemsManager?.GetAllInfos()?.Values)
-                        {
-                            ModAPI.Log.Write("ItemID: " + lockedItemInfo.m_ID.ToString());
-                        }                        
+                        ModAPI.Log.Write("UnlockedToolsItemInfos is empty!");                       
                         ShowHUDBigInfo(HUDBigInfoMessage("Fatal problem: Could not retrieve any tool blueprints. See logfile in game log folder for more info.", MessageType.Error, Color.red));
                         HasUnlockedTools = false;
                     }
                     else
                     {
-                        UnlockFireTools();
-                        UnlockFishingTools();
-                        UnlockWaterTools();
-
                         foreach (ItemInfo unlockedToolsItemInfo in UnlockedToolsItemInfos)
                         {
                             LocalItemsManager.UnlockItemInfo(unlockedToolsItemInfo.m_ID.ToString());
@@ -633,16 +1073,6 @@ namespace ModTools
 
         public void UnlockFishingTools()
         {
-            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Stick_Fish_Trap)))
-            {
-                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Stick_Fish_Trap));
-            }
-
-            if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Big_Stick_Fish_Trap)))
-            {
-                UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Big_Stick_Fish_Trap));
-            }
-
             if (!UnlockedToolsItemInfos.Contains(LocalItemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone)))
             {
                 UnlockedToolsItemInfos.Add(LocalItemsManager.GetInfo(ItemID.Bamboo_Fishing_Rod_Bone));
