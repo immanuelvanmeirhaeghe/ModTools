@@ -22,6 +22,7 @@ namespace ModTools
         private static ModTools Instance;
 
         private static readonly string ModName = nameof(ModTools);
+        private static readonly string RuntimeConfigurationFile = Path.Combine(Application.dataPath.Replace("GH_Data", "Mods"), "RuntimeConfiguration.xml");
 
         private static float ModToolsScreenTotalWidth { get; set; } = 700f;
         private static float ModToolsScreenTotalHeight { get; set; } = 350f;
@@ -46,7 +47,6 @@ namespace ModTools
 
         public static bool HasUnlockedTools { get; private set; }
         public static bool HasUnlockedWeapons { get; private set; }
-
         public static bool HasUnlockedArmor { get; private set; }
 
         public static List<ItemID> WaterToolIDs = new List<ItemID>
@@ -205,11 +205,13 @@ namespace ModTools
             ItemID.stick_armor,
             ItemID.Bone
         };
+
         public bool IsModActiveForMultiplayer { get; private set; }
         public bool IsModActiveForSingleplayer => ReplTools.AmIMaster();
 
         public Vector2 ModInfoScrollViewPosition { get; set; } = Vector2.zero;
         public IConfigurableMod SelectedMod { get; set; } = default;
+        public KeyCode ShortcutKey { get; set; } = KeyCode.Keypad9;
 
         public static string AlreadyUnlockedInfo(string info)
             => $"All {info} were already unlocked!";
@@ -261,10 +263,8 @@ namespace ModTools
             ModManager.ModManager.onPermissionValueChanged += ModManager_onPermissionValueChanged;
             InitData();
             ShortcutKey = GetConfigurableKey(nameof(ShortcutKey));
-        }
-
-        private static readonly string RuntimeConfigurationFile = Path.Combine(Application.dataPath.Replace("GH_Data", "Mods"), "RuntimeConfiguration.xml");
-        public KeyCode ShortcutKey { get; set; } = KeyCode.Keypad9;
+        }        
+        
         private KeyCode GetConfigurableKey(string buttonId)
         {
             KeyCode configuredKeyCode = default;
@@ -334,10 +334,10 @@ namespace ModTools
             return Instance;
         }
 
-        private void ShowHUDInfoLog(string ItemInfo, string localizedTextKey)
+        private void ShowHUDInfoLog(string itemInfo, string localizedTextKey)
         {
             Localization localization = GreenHellGame.Instance.GetLocalization();
-            ((HUDMessages)LocalHUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(ItemInfo));
+            ((HUDMessages)LocalHUDManager.GetHUD(typeof(HUDMessages))).AddMessage(localization.Get(localizedTextKey) + "  " + localization.Get(itemInfo));
         }
 
         private void EnableCursor(bool blockPlayer = false)
@@ -492,14 +492,14 @@ namespace ModTools
 
                     using (new GUILayout.VerticalScope(GUI.skin.box))
                     {
-                        //if (GUILayout.Button($"Mod Info", GUI.skin.button))
-                        //{
-                        //    ToggleShowUI(3);
-                        //}
-                        //if (ShowModToolsInfo)
-                        //{
-                        //    ModToolsInfoBox();
-                        //}
+                        if (GUILayout.Button($"Mod Info", GUI.skin.button))
+                        {
+                            ToggleShowUI(3);
+                        }
+                        if (ShowModToolsInfo)
+                        {
+                            ModToolsInfoBox();
+                        }
                         ModToolsOptionsBox();
                         MultiplayerOptionBox();
                         UnlockToolsBox();
@@ -734,8 +734,8 @@ namespace ModTools
                 {
                     foreach (var armorItemID in ArmorItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(armorItemID);
-                        ItemsManager.Get().UnlockItemInfo(armorItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(armorItemID);
+                        LocalItemsManager.UnlockItemInfo(armorItemID.ToString());
                         ShowHUDInfoLog(armorItemID.ToString(), LocalizedTextKey);
                     }
                     HasUnlockedArmor = true;                    
@@ -762,20 +762,20 @@ namespace ModTools
                 {
                     foreach (var watertoolItemID in WaterToolIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(watertoolItemID);
-                        ItemsManager.Get().UnlockItemInfo(watertoolItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(watertoolItemID);
+                        LocalItemsManager.UnlockItemInfo(watertoolItemID.ToString());
                         ShowHUDInfoLog(watertoolItemID.ToString(), LocalizedTextKey);
                     }                    
                     foreach (var firetoolItemID in FireToolIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(firetoolItemID);
-                        ItemsManager.Get().UnlockItemInfo(firetoolItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(firetoolItemID);
+                        LocalItemsManager.UnlockItemInfo(firetoolItemID.ToString());
                         ShowHUDInfoLog(firetoolItemID.ToString(), LocalizedTextKey);
                     }
                     foreach (var fishingtoolItemID in FishingToolIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(fishingtoolItemID);
-                        ItemsManager.Get().UnlockItemInfo(fishingtoolItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(fishingtoolItemID);
+                        LocalItemsManager.UnlockItemInfo(fishingtoolItemID.ToString());
                         ShowHUDInfoLog(fishingtoolItemID.ToString(), LocalizedTextKey);
                     }
                     HasUnlockedTools = true;
@@ -802,38 +802,38 @@ namespace ModTools
                 {
                     foreach (var weaponItemID in WeaponItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(weaponItemID);
-                        ItemsManager.Get().UnlockItemInfo(weaponItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(weaponItemID);
+                        LocalItemsManager.UnlockItemInfo(weaponItemID.ToString());
                         ShowHUDInfoLog(weaponItemID.ToString(), LocalizedTextKey);
                     }
                     foreach (var spearItemID in SpearItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(spearItemID);
-                        ItemsManager.Get().UnlockItemInfo(spearItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(spearItemID);
+                        LocalItemsManager.UnlockItemInfo(spearItemID.ToString());
                         ShowHUDInfoLog(spearItemID.ToString(), LocalizedTextKey);
                     }
                     foreach (var bowItemID in BowItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(bowItemID);
-                        ItemsManager.Get().UnlockItemInfo(bowItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(bowItemID);
+                        LocalItemsManager.UnlockItemInfo(bowItemID.ToString());
                         ShowHUDInfoLog(bowItemID.ToString(), LocalizedTextKey);
                     }
                     foreach (var arrowItemID in ArrowIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(arrowItemID);
-                        ItemsManager.Get().UnlockItemInfo(arrowItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(arrowItemID);
+                        LocalItemsManager.UnlockItemInfo(arrowItemID.ToString());
                         ShowHUDInfoLog(arrowItemID.ToString(), LocalizedTextKey);
                     }
                     foreach (var blowpipeItemID in BlowpipeIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(blowpipeItemID);
-                        ItemsManager.Get().UnlockItemInfo(blowpipeItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(blowpipeItemID);
+                        LocalItemsManager.UnlockItemInfo(blowpipeItemID.ToString());
                         ShowHUDInfoLog(blowpipeItemID.ToString(), LocalizedTextKey);
                     }                   
                     foreach (var trapItemID in TrapItemIDs)
                     {
-                        ItemsManager.Get().UnlockItemInNotepad(trapItemID);
-                        ItemsManager.Get().UnlockItemInfo(trapItemID.ToString());
+                        LocalItemsManager.UnlockItemInNotepad(trapItemID);
+                        LocalItemsManager.UnlockItemInfo(trapItemID.ToString());
                         ShowHUDInfoLog(trapItemID.ToString(), LocalizedTextKey);
                     }
                     HasUnlockedWeapons = true;              

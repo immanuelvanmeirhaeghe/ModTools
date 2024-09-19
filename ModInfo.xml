@@ -1,5 +1,5 @@
 <Mod ID="ModTools">
-  <Compatible>Update #21</Compatible>
+  <Compatible>U#21.2</Compatible>
   <Button Standard="NumPad9" ID="ShortcutKey">
     <Name>
       <EN>Press shortcut key</EN>
