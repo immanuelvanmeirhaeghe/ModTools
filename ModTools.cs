@@ -1,5 +1,6 @@
 ﻿using Enums;
-using ModManager.Data.Interfaces;
+using ModTools.Data.Interfaces;
+using ModTools.Data.Modding;
 using ModTools.Enums;
 using ModTools.Managers;
 using System;
@@ -23,6 +24,9 @@ namespace ModTools
 
         private static readonly string ModName = nameof(ModTools);
         private static readonly string RuntimeConfigurationFile = Path.Combine(Application.dataPath.Replace("GH_Data", "Mods"), "RuntimeConfiguration.xml");
+
+        public int ModToolsScreenId;
+        public string ModToolsScreenTitle = $"{ModName} created by [Dragon Legion] Immaanuel#4300";
 
         private static float ModToolsScreenTotalWidth { get; set; } = 700f;
         private static float ModToolsScreenTotalHeight { get; set; } = 350f;
@@ -262,45 +266,70 @@ namespace ModTools
         {
             ModManager.ModManager.onPermissionValueChanged += ModManager_onPermissionValueChanged;
             InitData();
-            ShortcutKey = GetConfigurableKey(nameof(ShortcutKey));
-        }        
-        
-        private KeyCode GetConfigurableKey(string buttonId)
-        {
-            KeyCode configuredKeyCode = default;
-            string configuredKeybinding = string.Empty;
+            ShortcutKey = GetShortcutKey(nameof(ShortcutKey));
+        }
 
+        public KeyCode GetShortcutKey(string buttonID)
+        {
+            var ConfigurableModList = GetModList();
+            if (ConfigurableModList != null && ConfigurableModList.Count > 0)
+            {
+                SelectedMod = ConfigurableModList.Find(cfgMod => cfgMod.ID == ModName);
+                return SelectedMod.ConfigurableModButtons.Find(cfgButton => cfgButton.ID == buttonID).ShortcutKey;
+            }
+            else
+            {
+                return KeyCode.Keypad8;
+            }
+        }
+
+        private List<IConfigurableMod> GetModList()
+        {
+            List<IConfigurableMod> modList = new List<IConfigurableMod>();
             try
             {
                 if (File.Exists(RuntimeConfigurationFile))
                 {
-                    using (var xmlReader = XmlReader.Create(new StreamReader(RuntimeConfigurationFile)))
+                    using (XmlReader configFileReader = XmlReader.Create(new StreamReader(RuntimeConfigurationFile)))
                     {
-                        while (xmlReader.Read())
+                        while (configFileReader.Read())
                         {
-                            if (xmlReader["ID"] == ModName)
+                            configFileReader.ReadToFollowing("Mod");
+                            do
                             {
-                                if (xmlReader.ReadToFollowing(nameof(Button)) && xmlReader["ID"] == buttonId)
+                                string gameID = GameID.GreenHell.ToString();
+                                string modID = configFileReader.GetAttribute(nameof(IConfigurableMod.ID));
+                                string uniqueID = configFileReader.GetAttribute(nameof(IConfigurableMod.UniqueID));
+                                string version = configFileReader.GetAttribute(nameof(IConfigurableMod.Version));
+
+                                var configurableMod = new ConfigurableMod(gameID, modID, uniqueID, version);
+
+                                configFileReader.ReadToDescendant("Button");
+                                do
                                 {
-                                    configuredKeybinding = xmlReader.ReadElementContentAsString();
+                                    string buttonID = configFileReader.GetAttribute(nameof(IConfigurableModButton.ID));
+                                    string buttonKeyBinding = configFileReader.ReadElementContentAsString();
+
+                                    configurableMod.AddConfigurableModButton(buttonID, buttonKeyBinding);
+
+                                } while (configFileReader.ReadToNextSibling("Button"));
+
+                                if (!modList.Contains(configurableMod))
+                                {
+                                    modList.Add(configurableMod);
                                 }
-                            }
+
+                            } while (configFileReader.ReadToNextSibling("Mod"));
                         }
                     }
                 }
-
-                configuredKeybinding = configuredKeybinding?.Replace("NumPad", "Keypad").Replace("Oem", "");
-
-                configuredKeyCode = (KeyCode)(!string.IsNullOrEmpty(configuredKeybinding)
-                                                            ? Enum.Parse(typeof(KeyCode), configuredKeybinding)
-                                                            : GetType().GetProperty(buttonId)?.GetValue(this));
-                return configuredKeyCode;
+                return modList;
             }
             catch (Exception exc)
             {
-                HandleException(exc, nameof(GetConfigurableKey));
-                configuredKeyCode = (KeyCode)(GetType().GetProperty(buttonId)?.GetValue(this));
-                return configuredKeyCode;
+                HandleException(exc, nameof(GetModList));
+                modList = new List<IConfigurableMod>();
+                return modList;
             }
         }
 
@@ -404,8 +433,7 @@ namespace ModTools
 
         private void ShowModToolsWindow()
         {
-            int ModToolsScreenId = GetHashCode();
-            string ModToolsScreenTitle = $"{ModName} created by [Dragon Legion] Immaanuel#4300";
+            ModToolsScreenId = GetHashCode();            
             ModToolsScreen = GUILayout.Window(
                                                                                     ModToolsScreenId,
                                                                                     ModToolsScreen,
